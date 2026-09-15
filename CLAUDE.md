@@ -43,3 +43,18 @@ npx prisma db seed       # 시드 (운영진 계정 + 20개 프로젝트)
 ## 하네스
 python3 scripts/execute.py <phase-dir> [--push]   # phase의 step을 순차 실행 (claude -p 호출)
 python3 -m pytest scripts/test_execute.py         # 하네스 테스트
+
+## Git / 이슈 워크플로우
+- 원격: https://github.com/minseokhan/VAN_AI_INNOVATION_WORK_DASHBOARD
+- Linear: https://linear.app/ai-agent-study/team/V/overview (팀 키 `V`, 팀명 VAN_AI_INNOVATION_WORK_DASHBOARD)
+- 브랜치: `main`(배포) ← `dev`(통합) ← `feat/V-<번호>-<slug>`(기능). 기능 브랜치는 항상 `dev`에서 분기한다.
+- CRITICAL: 기능 단위 작업은 사용자가 요청하지 않아도 Claude가 먼저 아래 전체 사이클을 **한 번에** 제안하고 실행한다. 단계별로 따로 물어보지 않는다.
+  1. Linear에서 다음 이슈를 가져와(`V-<번호>`) 내용을 확인한다.
+  2. GitHub 이슈를 생성한다 (제목: `[V-<번호>] <이슈 제목>`, 본문에 Linear 링크).
+  3. `dev`에서 `feat/V-<번호>-<slug>` 브랜치를 만든다.
+  4. TDD로 구현하고 conventional commit으로 커밋한다.
+  5. `dev`를 base로 PR을 생성한다 (본문에 `Closes #<GitHub 이슈번호>` + Linear 링크). Linear 이슈는 In Review로 옮긴다.
+  6. **여기서 멈추고 사용자의 PR 승인을 기다린다.**
+  7. 승인되면: PR을 `dev`에 머지(squash) → GitHub 이슈 닫기 → 원격·로컬 기능 브랜치 삭제 → Linear 이슈 Done 처리.
+- CRITICAL: `dev` → `main` 머지는 사용자가 명시적으로 요청할 때만 한다. 자동으로 하지 않는다.
+- `main`·`dev`에 직접 커밋하지 않는다. 항상 기능 브랜치 + PR을 거친다.
