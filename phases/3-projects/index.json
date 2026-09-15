@@ -1,0 +1,9 @@
+{
+  "project": "VAN AI 혁신부 업무 대시보드",
+  "phase": "3-projects",
+  "steps": [
+    { "step": 0, "name": "project-list", "status": "pending" },
+    { "step": 1, "name": "project-detail", "status": "pending" },
+    { "step": 2, "name": "project-admin", "status": "pending" }
+  ]
+}

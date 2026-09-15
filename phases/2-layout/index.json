@@ -1,0 +1,8 @@
+{
+  "project": "VAN AI 혁신부 업무 대시보드",
+  "phase": "2-layout",
+  "steps": [
+    { "step": 0, "name": "ui-kit", "status": "pending" },
+    { "step": 1, "name": "dashboard-shell", "status": "pending" }
+  ]
+}
