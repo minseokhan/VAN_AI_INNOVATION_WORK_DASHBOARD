@@ -12,8 +12,9 @@
     {
       "step": 1,
       "name": "plan-docs",
-      "status": "pending",
-      "linear": "V-20"
+      "status": "completed",
+      "linear": "V-20",
+      "summary": "lib/plan-docs/validation.ts(validateUploadFile 20MB·확장자 10종, validatePlanLink, safeFileName 확장자 보존 100자) 테스트 9건. POST /api/upload(requireAdmin→401/403 JSON, BLOB_READ_WRITE_TOKEN 없으면 503, 서버 재검증 후 @vercel/blob put addRandomSuffix). actions addPlanDoc/deletePlanDoc(requireAdmin, FILE은 del 시도 후 DB 삭제). components/projects/PlanDocs.tsx(파일/링크 탭, 업로드 중 상태, ConfirmButton 삭제). Blob 토큰: 이 세션에는 없음 — 파일 업로드 미검증, 링크 등록 경로는 토큰 무관"
     }
   ],
   "linear": "V-6"

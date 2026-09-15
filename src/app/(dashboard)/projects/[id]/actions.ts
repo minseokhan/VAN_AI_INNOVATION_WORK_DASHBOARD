@@ -1,9 +1,10 @@
 "use server";
 
-import type { ProjectStatus } from "@prisma/client";
+import type { PlanDocKind, ProjectStatus } from "@prisma/client";
+import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/auth/guards";
+import { requireAdmin, requireUser } from "@/lib/auth/guards";
 import { canEditProject } from "@/lib/auth/permissions";
 import { canTransitionStatus, nextOrder, validateFeatureTitle } from "@/lib/projects/features";
 import {
@@ -14,6 +15,7 @@ import {
   type ProjectInfoInput,
   type WeeklyInput,
 } from "@/lib/projects/info";
+import { validatePlanLink } from "@/lib/plan-docs/validation";
 import { getWeekStart } from "@/lib/utils/week";
 
 export type FormState<K extends string = string> = { error?: string; fieldErrors?: Partial<Record<K, string>> };
@@ -101,5 +103,31 @@ export async function submitWeeklyUpdate(
     update: { authorId: user.id, ...r.value },
   });
   revalidate(projectId);
+  return {};
+}
+
+export async function addPlanDoc(
+  projectId: string,
+  input: { kind: PlanDocKind; title: string; url: string },
+): Promise<{ error?: string }> {
+  const user = await requireAdmin();
+  if (input.kind !== "FILE" && input.kind !== "LINK") return { error: "잘못된 종류입니다" };
+  const r = validatePlanLink(input.title, input.url);
+  if (!r.ok) return { error: r.errors.title ?? r.errors.url };
+  await db.planDoc.create({
+    data: { projectId, kind: input.kind, title: input.title.trim(), url: input.url.trim(), uploadedById: user.id },
+  });
+  revalidatePath(`/projects/${projectId}`);
+  return {};
+}
+
+/** FILE이면 Blob 삭제도 시도하되, 실패해도 DB 삭제는 진행 */
+export async function deletePlanDoc(projectId: string, planDocId: string): Promise<{ error?: string }> {
+  await requireAdmin();
+  const doc = await db.planDoc.findUnique({ where: { id: planDocId, projectId }, select: { kind: true, url: true } });
+  if (!doc) return { error: "기획안을 찾을 수 없습니다" };
+  if (doc.kind === "FILE") await del(doc.url).catch(() => {});
+  await db.planDoc.delete({ where: { id: planDocId } });
+  revalidatePath(`/projects/${projectId}`);
   return {};
 }

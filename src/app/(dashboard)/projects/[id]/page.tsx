@@ -1,4 +1,4 @@
-import { CalendarClock, FileText, Link2, Play } from "lucide-react";
+import { CalendarClock, Play } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
@@ -10,6 +10,7 @@ import { calcProgress } from "@/lib/projects/progress";
 import { formatDate } from "@/lib/utils/date";
 import { linkify } from "@/lib/utils/linkify";
 import { FeatureChecklist } from "@/components/projects/FeatureChecklist";
+import { PlanDocs } from "@/components/projects/PlanDocs";
 import { ProjectInfoPanel } from "@/components/projects/ProjectInfoPanel";
 import { SidePanel } from "@/components/projects/SidePanel";
 import { WeeklyUpdates } from "@/components/projects/WeeklyUpdates";
@@ -65,7 +66,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       members: { include: { user: { select: { id: true, name: true } } } },
       features: { orderBy: { order: "asc" } },
       weeklyUpdates: { orderBy: { weekStart: "desc" }, include: { author: { select: { name: true } } } },
-      planDocs: { orderBy: { createdAt: "desc" } },
+      planDocs: { orderBy: { createdAt: "desc" }, include: { uploadedBy: { select: { name: true } } } },
       questions: { orderBy: { createdAt: "desc" }, take: 5, include: { author: { select: { name: true } } } },
     },
   });
@@ -206,26 +207,18 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               startedAt: project.startedAt ? formatDate(project.startedAt) : null,
             }}
           />
-          <SidePanel title="기획안">
-            {project.planDocs.length === 0 ? (
-              <p className="text-sm text-slate-400">등록된 기획안이 없습니다</p>
-            ) : (
-              <ul className="space-y-2">
-                {project.planDocs.map((d) => {
-                  const Icon = d.kind === "FILE" ? FileText : Link2;
-                  return (
-                    <li key={d.id} className="flex items-center gap-2 text-sm">
-                      <Icon size={16} strokeWidth={1.75} aria-hidden className="shrink-0 text-slate-500" />
-                      <a href={d.url} target="_blank" rel="noopener noreferrer" className={`${linkClass} min-w-0 flex-1 truncate`}>
-                        {d.title}
-                      </a>
-                      <span className="shrink-0 text-xs text-slate-500">{formatDate(d.createdAt)}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </SidePanel>
+          <PlanDocs
+            projectId={id}
+            isAdmin={user.role === "ADMIN"}
+            docs={project.planDocs.map((d) => ({
+              id: d.id,
+              kind: d.kind,
+              title: d.title,
+              url: d.url,
+              uploaderName: d.uploadedBy.name,
+              createdAt: d.createdAt,
+            }))}
+          />
         </aside>
       </div>
     </div>
