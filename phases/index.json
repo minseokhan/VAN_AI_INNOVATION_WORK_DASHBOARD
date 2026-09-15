@@ -1,6 +1,6 @@
 {
   "phases": [
-    { "dir": "0-setup", "status": "pending" },
+    { "dir": "0-setup", "status": "completed" },
     { "dir": "1-auth", "status": "pending" },
     { "dir": "2-layout", "status": "pending" },
     { "dir": "3-projects", "status": "pending" },

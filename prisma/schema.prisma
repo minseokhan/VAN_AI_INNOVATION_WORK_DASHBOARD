@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum AdminType {
+  PLANNING
+  DEV
+}
+
+enum ProjectStatus {
+  UNASSIGNED
+  IN_PROGRESS
+  DONE
+}
+
+enum Position {
+  FE
+  BE
+  AI
+  PM
+  ETC
+}
+
+enum PlanDocKind {
+  FILE
+  LINK
+}
+
+model User {
+  id           String     @id @default(cuid())
+  username     String     @unique
+  passwordHash String
+  name         String
+  role         Role       @default(MEMBER)
+  adminType    AdminType?
+  approved     Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+
+  memberships      ProjectMember[]
+  createdFeatures  Feature[]       @relation("FeatureCreatedBy")
+  weeklyUpdates    WeeklyUpdate[]
+  uploadedPlanDocs PlanDoc[]
+  questions        Question[]      @relation("QuestionAuthor")
+  answers          Question[]      @relation("QuestionAnsweredBy")
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  code         String        @unique
+  category     String
+  priority     String
+  dueDate      DateTime?
+  title        String
+  summary      String
+  description  String
+  status       ProjectStatus @default(UNASSIGNED)
+  githubUrl    String?
+  deployUrl    String?
+  mainLanguage String?
+  infraNote    String?
+  startedAt    DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  members       ProjectMember[]
+  features      Feature[]
+  weeklyUpdates WeeklyUpdate[]
+  planDocs      PlanDoc[]
+  questions     Question[]
+}
+
+model ProjectMember {
+  projectId  String
+  userId     String
+  position   Position @default(ETC)
+  assignedAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+}
+
+model Feature {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  done        Boolean  @default(false)
+  order       Int
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy User?   @relation("FeatureCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+}
+
+model WeeklyUpdate {
+  id           String   @id @default(cuid())
+  projectId    String
+  authorId     String
+  weekStart    DateTime @db.Date
+  didThisWeek  String
+  planNextWeek String
+  issues       String?
+  createdAt    DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, weekStart])
+}
+
+model PlanDoc {
+  id           String      @id @default(cuid())
+  projectId    String
+  title        String
+  kind         PlanDocKind
+  url          String
+  uploadedById String
+  createdAt    DateTime    @default(now())
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy User    @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Question {
+  id              String    @id @default(cuid())
+  projectId       String
+  authorId        String
+  content         String
+  answer          String?
+  answeredById    String?
+  answeredAt      DateTime?
+  sentToDiscordAt DateTime?
+  createdAt       DateTime  @default(now())
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author     User    @relation("QuestionAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  answeredBy User?   @relation("QuestionAnsweredBy", fields: [answeredById], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([sentToDiscordAt])
+}
