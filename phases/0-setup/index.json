@@ -1,0 +1,19 @@
+{
+  "project": "VAN AI 혁신부 업무 대시보드",
+  "phase": "0-setup",
+  "steps": [
+    {
+      "step": 0,
+      "name": "project-setup",
+      "status": "pending",
+      "linear": "V-8"
+    },
+    {
+      "step": 1,
+      "name": "db-schema",
+      "status": "pending",
+      "linear": "V-9"
+    }
+  ],
+  "linear": "V-1"
+}

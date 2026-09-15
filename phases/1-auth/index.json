@@ -1,0 +1,19 @@
+{
+  "project": "VAN AI 혁신부 업무 대시보드",
+  "phase": "1-auth",
+  "steps": [
+    {
+      "step": 0,
+      "name": "auth-lib",
+      "status": "pending",
+      "linear": "V-10"
+    },
+    {
+      "step": 1,
+      "name": "auth-pages",
+      "status": "pending",
+      "linear": "V-11"
+    }
+  ],
+  "linear": "V-2"
+}
