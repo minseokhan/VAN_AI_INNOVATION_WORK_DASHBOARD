@@ -19,8 +19,9 @@
     {
       "step": 2,
       "name": "project-admin",
-      "status": "pending",
-      "linear": "V-16"
+      "status": "completed",
+      "linear": "V-16",
+      "summary": "lib/projects/validation.ts(validateProject, parseProjectForm) + 테스트 10건; projects/actions.ts(createProject/updateProject/deleteProject — requireAdmin, P2002→fieldErrors.code); components/projects/{ProjectForm,DeleteProjectButton}.tsx(2단계 삭제 확인); projects/new + projects/[id]/edit 페이지"
     }
   ],
   "linear": "V-4"

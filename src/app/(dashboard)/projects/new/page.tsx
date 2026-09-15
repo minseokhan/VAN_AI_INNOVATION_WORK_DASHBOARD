@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { ProjectForm } from "@/components/projects/ProjectForm";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { createProject } from "../actions";
 
 export default async function NewProjectPage() {
   try {
@@ -10,10 +12,13 @@ export default async function NewProjectPage() {
     if (e instanceof Error && e.message === "FORBIDDEN") redirect("/");
     throw e; // requireUser의 NEXT_REDIRECT 등은 그대로 전파
   }
+  const categories = (await db.project.findMany({ distinct: ["category"], select: { category: true }, orderBy: { category: "asc" } })).map(
+    (c) => c.category,
+  );
   return (
     <>
       <PageHeader title="새 프로젝트" />
-      <EmptyState message="프로젝트 생성 폼은 다음 단계에서 표시됩니다" />
+      <ProjectForm action={createProject} categories={categories} submitLabel="생성" />
     </>
   );
 }
