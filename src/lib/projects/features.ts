@@ -1,0 +1,19 @@
+import type { ProjectStatus } from "@prisma/client";
+
+/** 새 기능의 order: max+1, 빈 배열이면 0 */
+export function nextOrder(features: Array<{ order: number }>): number {
+  return features.length === 0 ? 0 : Math.max(...features.map((f) => f.order)) + 1;
+}
+
+export function validateFeatureTitle(title: string): string | null {
+  const t = title.trim();
+  if (t.length === 0) return "기능 이름을 입력하세요";
+  if (t.length > 120) return "기능 이름은 120자 이하여야 합니다";
+  return null;
+}
+
+/** 수동 전이는 IN_PROGRESS ↔ DONE 만. 멤버 0명이면 불가. UNASSIGNED 는 배치로만 바뀐다 */
+export function canTransitionStatus(from: ProjectStatus, to: ProjectStatus, memberCount: number): boolean {
+  if (memberCount <= 0) return false;
+  return (from === "IN_PROGRESS" && to === "DONE") || (from === "DONE" && to === "IN_PROGRESS");
+}

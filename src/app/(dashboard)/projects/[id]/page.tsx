@@ -1,0 +1,250 @@
+import { CalendarClock, FileText, Link2, Play } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { db } from "@/lib/db";
+import { requireUser } from "@/lib/auth/guards";
+import { canEditProject } from "@/lib/auth/permissions";
+import { canTransitionStatus } from "@/lib/projects/features";
+import { POSITION_LABEL, STATUS_LABEL, STATUS_TONE } from "@/lib/projects/labels";
+import { calcProgress } from "@/lib/projects/progress";
+import { formatDate } from "@/lib/utils/date";
+import { linkify } from "@/lib/utils/linkify";
+import { FeatureChecklist } from "@/components/projects/FeatureChecklist";
+import { Avatar } from "@/components/ui/Avatar";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { setProjectStatus } from "./actions";
+
+const linkClass = "text-navy-500 hover:underline break-all";
+
+function Paragraphs({ text }: { text: string }) {
+  const paras = text.split(/\n\s*\n/).filter((p) => p.trim());
+  if (paras.length === 0) return <p className="text-sm text-slate-400">설명이 없습니다</p>;
+  return (
+    <div className="space-y-3">
+      {paras.map((p, i) => (
+        <p key={i} className="whitespace-pre-line text-sm leading-relaxed text-slate-700">
+          {linkify(p).map((s, j) =>
+            s.type === "link" ? (
+              <a key={j} href={s.value} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                {s.value}
+              </a>
+            ) : (
+              s.value
+            ),
+          )}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function SidePanel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+      <h2 className="mb-3 text-sm font-semibold text-slate-900">{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+function InfoRow({ label, value, href }: { label: string; value: string | null; href?: boolean }) {
+  return (
+    <div className="flex justify-between gap-3 text-sm">
+      <dt className="shrink-0 text-slate-500">{label}</dt>
+      <dd className="min-w-0 truncate text-right text-slate-700">
+        {!value ? (
+          <span className="text-slate-400">미입력</span>
+        ) : href ? (
+          <a href={value} target="_blank" rel="noopener noreferrer" className={linkClass}>
+            {value}
+          </a>
+        ) : (
+          value
+        )}
+      </dd>
+    </div>
+  );
+}
+
+export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const user = await requireUser();
+  const { id } = await params;
+  const project = await db.project.findUnique({
+    where: { id },
+    include: {
+      members: { include: { user: { select: { id: true, name: true } } } },
+      features: { orderBy: { order: "asc" } },
+      weeklyUpdates: { orderBy: { weekStart: "desc" }, take: 5 },
+      planDocs: { orderBy: { createdAt: "desc" } },
+      questions: { orderBy: { createdAt: "desc" }, take: 5, include: { author: { select: { name: true } } } },
+    },
+  });
+  if (!project) notFound();
+
+  const canEdit = canEditProject(user, project.members.map((m) => m.userId));
+  const target = project.status === "DONE" ? "IN_PROGRESS" : "DONE";
+  const canTransition = canEdit && canTransitionStatus(project.status, target, project.members.length);
+  const transition = async () => {
+    "use server";
+    await setProjectStatus(id, target);
+  };
+
+  return (
+    <div className="space-y-8">
+      <header className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs text-slate-500">{project.code}</p>
+            <h1 className="text-2xl font-semibold text-slate-900">{project.title}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <Badge tone={STATUS_TONE[project.status]}>{STATUS_LABEL[project.status]}</Badge>
+              <Badge>{project.priority}</Badge>
+              <Badge>{project.category}</Badge>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {canTransition && (
+              <form action={transition}>
+                <Button type="submit" variant="secondary">
+                  {target === "DONE" ? "완료로 표시" : "진행중으로 되돌리기"}
+                </Button>
+              </form>
+            )}
+            {user.role === "ADMIN" && (
+              <Link href={`/projects/${id}/edit`} className="text-sm text-navy-500 hover:underline">
+                편집
+              </Link>
+            )}
+          </div>
+        </div>
+        <ProgressBar value={calcProgress(project.features)} className="[&>div]:h-3 [&>div>div]:h-3" />
+        <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+          <span className="inline-flex items-center gap-1">
+            <Play size={16} strokeWidth={1.75} aria-hidden />
+            시작 {project.startedAt ? formatDate(project.startedAt) : "미정"}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <CalendarClock size={16} strokeWidth={1.75} aria-hidden />
+            마감 {project.dueDate ? formatDate(project.dueDate) : "미정"}
+          </span>
+        </div>
+      </header>
+
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="space-y-8 lg:col-span-2">
+          <Section title="설명">
+            <Paragraphs text={project.description} />
+          </Section>
+          <Section title={`기능 체크리스트 (${project.features.filter((f) => f.done).length}/${project.features.length})`}>
+            <FeatureChecklist
+              projectId={id}
+              canEdit={canEdit}
+              features={project.features.map(({ id, title, done }) => ({ id, title, done }))}
+            />
+          </Section>
+          <Section title="주간 보고">
+            {project.weeklyUpdates.length === 0 ? (
+              <EmptyState message="아직 주간 보고가 없습니다" />
+            ) : (
+              <ol className="space-y-3">
+                {project.weeklyUpdates.map((w) => (
+                  <li key={w.id} className="rounded-md border border-slate-200 p-4">
+                    <p className="mb-1 text-xs font-medium text-slate-500">{formatDate(w.weekStart)} 주</p>
+                    <p className="line-clamp-3 whitespace-pre-line text-sm text-slate-700">{w.didThisWeek}</p>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Section>
+          <Section
+            title="질문"
+            action={
+              <Link href={`/questions?project=${id}`} className="text-sm text-navy-500 hover:underline">
+                전체 보기
+              </Link>
+            }
+          >
+            {project.questions.length === 0 ? (
+              <EmptyState message="아직 질문이 없습니다" />
+            ) : (
+              <ul className="space-y-3">
+                {project.questions.map((q) => (
+                  <li key={q.id} className="rounded-md border border-slate-200 p-4">
+                    <div className="mb-1 flex items-center justify-between gap-2 text-xs text-slate-500">
+                      <span>
+                        {q.author.name} · {formatDate(q.createdAt)}
+                      </span>
+                      <Badge tone={q.answer ? "green" : "amber"}>{q.answer ? "답변 완료" : "미답변"}</Badge>
+                    </div>
+                    <p className="line-clamp-2 text-sm text-slate-700">{q.content}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Section>
+        </div>
+
+        <aside className="space-y-4">
+          <SidePanel title="팀">
+            {project.members.length === 0 ? (
+              <p className="text-sm text-slate-400">아직 배치되지 않았습니다</p>
+            ) : (
+              <ul className="space-y-2">
+                {project.members.map((m) => (
+                  <li key={m.userId} className="flex items-center gap-2 text-sm">
+                    <Avatar name={m.user.name} />
+                    <span className="text-slate-700">{m.user.name}</span>
+                    <span className="text-xs text-slate-500">{POSITION_LABEL[m.position]}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SidePanel>
+          <SidePanel title="초기 정보">
+            <dl className="space-y-2">
+              <InfoRow label="GitHub" value={project.githubUrl} href />
+              <InfoRow label="배포" value={project.deployUrl} href />
+              <InfoRow label="주 언어" value={project.mainLanguage} />
+              <InfoRow label="인프라" value={project.infraNote} />
+            </dl>
+          </SidePanel>
+          <SidePanel title="기획안">
+            {project.planDocs.length === 0 ? (
+              <p className="text-sm text-slate-400">등록된 기획안이 없습니다</p>
+            ) : (
+              <ul className="space-y-2">
+                {project.planDocs.map((d) => {
+                  const Icon = d.kind === "FILE" ? FileText : Link2;
+                  return (
+                    <li key={d.id} className="flex items-center gap-2 text-sm">
+                      <Icon size={16} strokeWidth={1.75} aria-hidden className="shrink-0 text-slate-500" />
+                      <a href={d.url} target="_blank" rel="noopener noreferrer" className={`${linkClass} min-w-0 flex-1 truncate`}>
+                        {d.title}
+                      </a>
+                      <span className="shrink-0 text-xs text-slate-500">{formatDate(d.createdAt)}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </SidePanel>
+        </aside>
+      </div>
+    </div>
+  );
+}

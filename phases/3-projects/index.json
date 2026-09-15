@@ -12,8 +12,9 @@
     {
       "step": 1,
       "name": "project-detail",
-      "status": "pending",
-      "linear": "V-15"
+      "status": "completed",
+      "linear": "V-15",
+      "summary": "lib/projects/features.ts(nextOrder, validateFeatureTitle, canTransitionStatus) + lib/utils/linkify.ts + 테스트 13건; projects/[id]/{page,actions}.ts(toggle/add/deleteFeature, setProjectStatus — requireUser+canEditProject); components/projects/FeatureChecklist.tsx(useOptimistic). 상태 전환은 인라인 서버 액션 폼, ADMIN에게 /projects/[id]/edit 링크"
     },
     {
       "step": 2,
