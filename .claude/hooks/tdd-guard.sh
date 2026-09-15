@@ -95,15 +95,7 @@ case "$FILE_PATH" in
     fi
 
     if [ "$TEST_FOUND" = false ]; then
-      cat << EOF
-{
-  "hookSpecificOutput": {
-    "hookEventName": "PreToolUse",
-    "permissionDecision": "deny",
-    "permissionDecisionReason": "TDD GUARD: '${BASENAME}'에 대한 테스트 파일이 존재하지 않습니다. 구현 코드를 작성하기 전에 테스트를 먼저 작성하세요. (테스트 파일 예: ${BASENAME}.test.ts)"
-  }
-}
-EOF
+      jq -nc --arg name "$BASENAME" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:("TDD GUARD: \u0027" + $name + "\u0027에 대한 테스트 파일이 존재하지 않습니다. 구현 코드를 작성하기 전에 테스트를 먼저 작성하세요. (테스트 파일 예: " + $name + ".test.ts)")}}'
     fi
     ;;
 esac
