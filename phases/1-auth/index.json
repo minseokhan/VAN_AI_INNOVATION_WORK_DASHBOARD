@@ -12,8 +12,9 @@
     {
       "step": 1,
       "name": "auth-pages",
-      "status": "pending",
-      "linear": "V-11"
+      "status": "completed",
+      "linear": "V-11",
+      "summary": "src/app/(auth)/{layout,actions,login,register,pending} + components/auth/{FormField,LoginForm,RegisterForm} + src/middleware.ts(Edge, verifySession만) + page.tsx 임시 교체. login은 동일 실패 메시지·?next 안전 리다이렉트, register는 approved:false 생성 후 /pending. /pending 승인 시 refreshSession 폼 액션으로 토큰 재발급(Server Component는 쿠키 set 불가)"
     }
   ],
   "linear": "V-2"
