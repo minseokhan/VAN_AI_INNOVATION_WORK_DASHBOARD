@@ -12,8 +12,9 @@
     {
       "step": 1,
       "name": "dashboard-shell",
-      "status": "pending",
-      "linear": "V-13"
+      "status": "completed",
+      "linear": "V-13",
+      "summary": "src/app/(dashboard)/{layout,page}.tsx + questions/assign/members/projects/new 자리표시 페이지(ADMIN 페이지는 FORBIDDEN만 잡아 / 로 redirect, NEXT_REDIRECT는 전파), src/components/layout/{Sidebar,MobileHeader}.tsx, globals.css fade-in keyframe. src/app/page.tsx 삭제(라우트 그룹 이동)"
     }
   ],
   "linear": "V-3"
