@@ -5,8 +5,9 @@
     {
       "step": 0,
       "name": "members-admin",
-      "status": "pending",
-      "linear": "V-17"
+      "status": "completed",
+      "linear": "V-17",
+      "summary": "src/lib/members/rules.ts(canChangeRole/canRemoveUser)+테스트 9건, members/actions.ts(approveUser/rejectUser/setRole/setAdminType, 첫 줄 requireAdmin), members/page.tsx(승인 대기 amber 섹션+멤버 테이블), components/members/MemberRow.tsx(PendingRow/MemberRow), components/ui/ConfirmButton.tsx 추출(DeleteProjectButton 삭제·edit 페이지 교체). 강등 시 adminType null 처리."
     },
     {
       "step": 1,
