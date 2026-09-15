@@ -11,6 +11,7 @@ export type ProjectCardData = {
   priority: string;
   status: ProjectStatus;
   dueDate: Date | null;
+  startedAt: Date | null;
   progress: number;
   members: { id: string; name: string; position: Position }[];
   lastReportAt: Date | null;
@@ -19,7 +20,7 @@ export type ProjectCardData = {
 export async function listProjectsForBoard(): Promise<ProjectCardData[]> {
   const rows = await db.project.findMany({
     select: {
-      id: true, code: true, title: true, summary: true, category: true, priority: true, status: true, dueDate: true,
+      id: true, code: true, title: true, summary: true, category: true, priority: true, status: true, dueDate: true, startedAt: true,
       members: { select: { position: true, user: { select: { id: true, name: true } } } },
       features: { select: { done: true } },
       weeklyUpdates: { orderBy: { createdAt: "desc" }, take: 1, select: { createdAt: true } },

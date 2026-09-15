@@ -10,6 +10,9 @@ import { calcProgress } from "@/lib/projects/progress";
 import { formatDate } from "@/lib/utils/date";
 import { linkify } from "@/lib/utils/linkify";
 import { FeatureChecklist } from "@/components/projects/FeatureChecklist";
+import { ProjectInfoPanel } from "@/components/projects/ProjectInfoPanel";
+import { SidePanel } from "@/components/projects/SidePanel";
+import { WeeklyUpdates } from "@/components/projects/WeeklyUpdates";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -53,34 +56,6 @@ function Section({ title, action, children }: { title: string; action?: React.Re
   );
 }
 
-function SidePanel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">{title}</h2>
-      {children}
-    </div>
-  );
-}
-
-function InfoRow({ label, value, href }: { label: string; value: string | null; href?: boolean }) {
-  return (
-    <div className="flex justify-between gap-3 text-sm">
-      <dt className="shrink-0 text-slate-500">{label}</dt>
-      <dd className="min-w-0 truncate text-right text-slate-700">
-        {!value ? (
-          <span className="text-slate-400">미입력</span>
-        ) : href ? (
-          <a href={value} target="_blank" rel="noopener noreferrer" className={linkClass}>
-            {value}
-          </a>
-        ) : (
-          value
-        )}
-      </dd>
-    </div>
-  );
-}
-
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
   const { id } = await params;
@@ -89,7 +64,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     include: {
       members: { include: { user: { select: { id: true, name: true } } } },
       features: { orderBy: { order: "asc" } },
-      weeklyUpdates: { orderBy: { weekStart: "desc" }, take: 5 },
+      weeklyUpdates: { orderBy: { weekStart: "desc" }, include: { author: { select: { name: true } } } },
       planDocs: { orderBy: { createdAt: "desc" } },
       questions: { orderBy: { createdAt: "desc" }, take: 5, include: { author: { select: { name: true } } } },
     },
@@ -158,18 +133,18 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             />
           </Section>
           <Section title="주간 보고">
-            {project.weeklyUpdates.length === 0 ? (
-              <EmptyState message="아직 주간 보고가 없습니다" />
-            ) : (
-              <ol className="space-y-3">
-                {project.weeklyUpdates.map((w) => (
-                  <li key={w.id} className="rounded-md border border-slate-200 p-4">
-                    <p className="mb-1 text-xs font-medium text-slate-500">{formatDate(w.weekStart)} 주</p>
-                    <p className="line-clamp-3 whitespace-pre-line text-sm text-slate-700">{w.didThisWeek}</p>
-                  </li>
-                ))}
-              </ol>
-            )}
+            <WeeklyUpdates
+              projectId={id}
+              canEdit={canEdit}
+              updates={project.weeklyUpdates.map((w) => ({
+                id: w.id,
+                weekStart: w.weekStart,
+                authorName: w.author.name,
+                didThisWeek: w.didThisWeek,
+                planNextWeek: w.planNextWeek,
+                issues: w.issues,
+              }))}
+            />
           </Section>
           <Section
             title="질문"
@@ -220,14 +195,17 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               </Link>
             )}
           </SidePanel>
-          <SidePanel title="초기 정보">
-            <dl className="space-y-2">
-              <InfoRow label="GitHub" value={project.githubUrl} href />
-              <InfoRow label="배포" value={project.deployUrl} href />
-              <InfoRow label="주 언어" value={project.mainLanguage} />
-              <InfoRow label="인프라" value={project.infraNote} />
-            </dl>
-          </SidePanel>
+          <ProjectInfoPanel
+            projectId={id}
+            canEdit={canEdit}
+            info={{
+              githubUrl: project.githubUrl,
+              deployUrl: project.deployUrl,
+              mainLanguage: project.mainLanguage,
+              infraNote: project.infraNote,
+              startedAt: project.startedAt ? formatDate(project.startedAt) : null,
+            }}
+          />
           <SidePanel title="기획안">
             {project.planDocs.length === 0 ? (
               <p className="text-sm text-slate-400">등록된 기획안이 없습니다</p>

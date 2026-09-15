@@ -6,6 +6,17 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
 import { canEditProject } from "@/lib/auth/permissions";
 import { canTransitionStatus, nextOrder, validateFeatureTitle } from "@/lib/projects/features";
+import {
+  parseProjectInfoForm,
+  parseWeeklyForm,
+  validateProjectInfo,
+  validateWeekly,
+  type ProjectInfoInput,
+  type WeeklyInput,
+} from "@/lib/projects/info";
+import { getWeekStart } from "@/lib/utils/week";
+
+export type FormState<K extends string = string> = { error?: string; fieldErrors?: Partial<Record<K, string>> };
 
 /** 세션 확인 → 프로젝트 멤버 조회 → 편집 권한 검사. 실패 시 throw */
 async function requireEditor(projectId: string) {
@@ -53,6 +64,42 @@ export async function setProjectStatus(projectId: string, to: ProjectStatus): Pr
     return { error: "지금 상태에서는 전환할 수 없습니다" };
   }
   await db.project.update({ where: { id: projectId }, data: { status: to } });
+  revalidate(projectId);
+  return {};
+}
+
+export async function updateProjectInfo(
+  projectId: string,
+  _prev: FormState<keyof ProjectInfoInput>,
+  fd: FormData,
+): Promise<FormState<keyof ProjectInfoInput>> {
+  await requireEditor(projectId);
+  const r = validateProjectInfo(parseProjectInfoForm(fd));
+  if (!r.ok) return { fieldErrors: r.errors };
+  const { startedAt, ...rest } = r.value;
+  await db.project.update({
+    where: { id: projectId },
+    data: { ...rest, startedAt: startedAt ? new Date(startedAt) : null },
+  });
+  revalidate(projectId);
+  return {};
+}
+
+/** 이번 주(KST 월요일 기준) 보고를 upsert — 같은 주 재제출은 덮어쓰고 작성자를 갱신 */
+export async function submitWeeklyUpdate(
+  projectId: string,
+  _prev: FormState<keyof WeeklyInput>,
+  fd: FormData,
+): Promise<FormState<keyof WeeklyInput>> {
+  const { user } = await requireEditor(projectId);
+  const r = validateWeekly(parseWeeklyForm(fd));
+  if (!r.ok) return { fieldErrors: r.errors };
+  const weekStart = getWeekStart(new Date());
+  await db.weeklyUpdate.upsert({
+    where: { projectId_weekStart: { projectId, weekStart } },
+    create: { projectId, weekStart, authorId: user.id, ...r.value },
+    update: { authorId: user.id, ...r.value },
+  });
   revalidate(projectId);
   return {};
 }

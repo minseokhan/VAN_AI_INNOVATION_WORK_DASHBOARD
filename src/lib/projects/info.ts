@@ -1,0 +1,74 @@
+export const LANGUAGE_OPTIONS: string[] = ["TypeScript", "Python", "JavaScript", "Java", "Kotlin", "Swift", "Go", "기타"];
+
+export type ProjectInfoInput = {
+  githubUrl?: string;
+  deployUrl?: string;
+  mainLanguage?: string;
+  infraNote?: string;
+  startedAt?: string;
+};
+/** 검증 통과 값: 빈 문자열은 null로 정규화됨 */
+export type ProjectInfoValue = Record<keyof ProjectInfoInput, string | null>;
+
+const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+
+function isHttpUrl(s: string): boolean {
+  try {
+    return ["http:", "https:"].includes(new URL(s).protocol);
+  } catch {
+    return false;
+  }
+}
+
+export function validateProjectInfo(
+  i: ProjectInfoInput,
+): { ok: true; value: ProjectInfoValue } | { ok: false; errors: Partial<Record<keyof ProjectInfoInput, string>> } {
+  const errors: Partial<Record<keyof ProjectInfoInput, string>> = {};
+  const v = (s?: string) => (s?.trim() ? s.trim() : null);
+  const value: ProjectInfoValue = {
+    githubUrl: v(i.githubUrl),
+    deployUrl: v(i.deployUrl),
+    mainLanguage: v(i.mainLanguage),
+    infraNote: v(i.infraNote),
+    startedAt: v(i.startedAt),
+  };
+  if (value.githubUrl && !isHttpUrl(value.githubUrl)) errors.githubUrl = "http(s) URL만 입력할 수 있습니다";
+  if (value.deployUrl && !isHttpUrl(value.deployUrl)) errors.deployUrl = "http(s) URL만 입력할 수 있습니다";
+  if (value.mainLanguage && value.mainLanguage.length > 30) errors.mainLanguage = "주 언어는 30자 이하여야 합니다";
+  if (value.infraNote && value.infraNote.length > 500) errors.infraNote = "인프라 메모는 500자 이하여야 합니다";
+  if (value.startedAt && !DATE_RE.test(value.startedAt)) errors.startedAt = "시작일은 YYYY-MM-DD 형식이어야 합니다";
+  return Object.keys(errors).length ? { ok: false, errors } : { ok: true, value };
+}
+
+export function parseProjectInfoForm(fd: FormData): ProjectInfoInput {
+  const get = (k: string) => String(fd.get(k) ?? "").trim();
+  const lang = get("mainLanguage");
+  return {
+    githubUrl: get("githubUrl"),
+    deployUrl: get("deployUrl"),
+    mainLanguage: lang === "기타" ? get("mainLanguageOther") : lang,
+    infraNote: get("infraNote"),
+    startedAt: get("startedAt"),
+  };
+}
+
+export type WeeklyInput = { didThisWeek: string; planNextWeek: string; issues?: string };
+export type WeeklyValue = { didThisWeek: string; planNextWeek: string; issues: string | null };
+
+export function validateWeekly(
+  i: WeeklyInput,
+): { ok: true; value: WeeklyValue } | { ok: false; errors: Partial<Record<keyof WeeklyInput, string>> } {
+  const errors: Partial<Record<keyof WeeklyInput, string>> = {};
+  const didThisWeek = i.didThisWeek.trim();
+  const planNextWeek = i.planNextWeek.trim();
+  const issues = i.issues?.trim() || null;
+  if (!didThisWeek || didThisWeek.length > 2000) errors.didThisWeek = "이번 주 한 일은 1~2000자여야 합니다";
+  if (!planNextWeek || planNextWeek.length > 2000) errors.planNextWeek = "다음 주 계획은 1~2000자여야 합니다";
+  if (issues && issues.length > 2000) errors.issues = "이슈는 2000자 이하여야 합니다";
+  return Object.keys(errors).length ? { ok: false, errors } : { ok: true, value: { didThisWeek, planNextWeek, issues } };
+}
+
+export function parseWeeklyForm(fd: FormData): WeeklyInput {
+  const get = (k: string) => String(fd.get(k) ?? "").trim();
+  return { didThisWeek: get("didThisWeek"), planNextWeek: get("planNextWeek"), issues: get("issues") };
+}

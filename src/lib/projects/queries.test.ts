@@ -15,6 +15,7 @@ describe("listProjectsForBoard", () => {
     const arg = findMany.mock.calls[0][0];
     expect(arg.select.members.select.user.select).toEqual({ id: true, name: true });
     expect(arg.select.features.select).toEqual({ done: true });
+    expect(arg.select.startedAt).toBe(true);
     expect(arg.select.weeklyUpdates).toMatchObject({ orderBy: { createdAt: "desc" }, take: 1 });
   });
 
