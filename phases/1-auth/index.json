@@ -5,8 +5,9 @@
     {
       "step": 0,
       "name": "auth-lib",
-      "status": "pending",
-      "linear": "V-10"
+      "status": "completed",
+      "linear": "V-10",
+      "summary": "src/lib/auth/{password,session,validation,permissions,guards}.ts + 테스트 5개(24 tests). bcryptjs cost10, jose HS256 7일(SESSION_MAX_AGE export), signSession은 SessionUser 5필드만 직렬화, guards는 DB 재조회로 최신 role/approved 반영"
     },
     {
       "step": 1,
