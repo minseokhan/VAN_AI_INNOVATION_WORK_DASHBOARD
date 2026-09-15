@@ -2,7 +2,18 @@
   "project": "VAN AI 혁신부 업무 대시보드",
   "phase": "5-progress",
   "steps": [
-    { "step": 0, "name": "weekly-update", "status": "pending" },
-    { "step": 1, "name": "plan-docs", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "weekly-update",
+      "status": "pending",
+      "linear": "V-19"
+    },
+    {
+      "step": 1,
+      "name": "plan-docs",
+      "status": "pending",
+      "linear": "V-20"
+    }
+  ],
+  "linear": "V-6"
 }

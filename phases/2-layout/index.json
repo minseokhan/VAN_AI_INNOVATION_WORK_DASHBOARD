@@ -2,7 +2,18 @@
   "project": "VAN AI 혁신부 업무 대시보드",
   "phase": "2-layout",
   "steps": [
-    { "step": 0, "name": "ui-kit", "status": "pending" },
-    { "step": 1, "name": "dashboard-shell", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "ui-kit",
+      "status": "pending",
+      "linear": "V-12"
+    },
+    {
+      "step": 1,
+      "name": "dashboard-shell",
+      "status": "pending",
+      "linear": "V-13"
+    }
+  ],
+  "linear": "V-3"
 }

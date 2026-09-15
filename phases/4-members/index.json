@@ -2,7 +2,18 @@
   "project": "VAN AI 혁신부 업무 대시보드",
   "phase": "4-members",
   "steps": [
-    { "step": 0, "name": "members-admin", "status": "pending" },
-    { "step": 1, "name": "assign-board", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "members-admin",
+      "status": "pending",
+      "linear": "V-17"
+    },
+    {
+      "step": 1,
+      "name": "assign-board",
+      "status": "pending",
+      "linear": "V-18"
+    }
+  ],
+  "linear": "V-5"
 }

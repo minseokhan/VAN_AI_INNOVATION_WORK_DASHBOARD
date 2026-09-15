@@ -2,7 +2,18 @@
   "project": "VAN AI 혁신부 업무 대시보드",
   "phase": "6-questions",
   "steps": [
-    { "step": 0, "name": "questions-page", "status": "pending" },
-    { "step": 1, "name": "discord-digest", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "questions-page",
+      "status": "pending",
+      "linear": "V-21"
+    },
+    {
+      "step": 1,
+      "name": "discord-digest",
+      "status": "pending",
+      "linear": "V-22"
+    }
+  ],
+  "linear": "V-7"
 }
