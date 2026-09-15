@@ -5,8 +5,9 @@
     {
       "step": 0,
       "name": "ui-kit",
-      "status": "pending",
-      "linear": "V-12"
+      "status": "completed",
+      "linear": "V-12",
+      "summary": "src/lib/utils/{cn,initials,date}.ts + src/lib/projects/labels.ts (TDD 4파일 17건), src/components/ui/ 12개(Button/Badge/Card/Input/Textarea/Select/Field/ProgressBar/Avatar/AvatarGroup/EmptyState/PageHeader), page.tsx 임시 쇼케이스. 날짜는 KST 고정, BadgeTone은 Badge.tsx에서 type export"
     },
     {
       "step": 1,

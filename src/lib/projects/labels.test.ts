@@ -1,0 +1,21 @@
+import { describe, expect, it } from "vitest";
+import { POSITION_LABEL, PRIORITY_ORDER, STATUS_LABEL, STATUS_TONE, priorityRank } from "./labels";
+
+describe("labels", () => {
+  it("상태 라벨/톤", () => {
+    expect(STATUS_LABEL).toEqual({ UNASSIGNED: "미배정", IN_PROGRESS: "진행중", DONE: "완료" });
+    expect(STATUS_TONE).toEqual({ UNASSIGNED: "neutral", IN_PROGRESS: "navy", DONE: "green" });
+  });
+  it("포지션 라벨", () => {
+    expect(POSITION_LABEL).toEqual({ FE: "프론트", BE: "백엔드", AI: "AI", PM: "기획", ETC: "기타" });
+  });
+  it("우선순위 순서", () => {
+    expect(PRIORITY_ORDER).toEqual(["上", "中上", "中", "中下", "下", "중장기"]);
+  });
+  it("priorityRank는 목록 인덱스, 없으면 마지막", () => {
+    expect(priorityRank("上")).toBe(0);
+    expect(priorityRank("중장기")).toBe(5);
+    expect(priorityRank("???")).toBe(6);
+    expect(priorityRank("")).toBe(6);
+  });
+});
