@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
 import { canDeleteQuestion, filterQuestions, type QuestionFilter } from "@/lib/questions/rules";
 import { cn } from "@/lib/utils/cn";
+import { DigestButton } from "@/components/questions/DigestButton";
 import { QuestionCard } from "@/components/questions/QuestionCard";
 import { QuestionForm } from "@/components/questions/QuestionForm";
 import { Badge } from "@/components/ui/Badge";
@@ -22,7 +23,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   const project = sp.project || undefined;
   const isAdmin = user.role === "ADMIN";
 
-  const [questions, projects] = await Promise.all([
+  const [questions, projects, unsent] = await Promise.all([
     db.question.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -36,6 +37,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
       orderBy: { code: "asc" },
       select: { id: true, code: true, title: true },
     }),
+    isAdmin ? db.question.count({ where: { sentToDiscordAt: null } }) : 0,
   ]);
 
   const all = questions.map((q) => ({ ...q, project: { ...q.project, memberIds: q.project.members.map((m) => m.userId) } }));
@@ -51,7 +53,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <PageHeader title="질문" />
+      <PageHeader title="질문" actions={isAdmin && <DigestButton pendingCount={unsent} />} />
       <div className="space-y-6">
         {projects.length === 0 ? (
           <p className="rounded-md border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">

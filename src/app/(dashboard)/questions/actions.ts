@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireAdmin, requireUser } from "@/lib/auth/guards";
+import { runDigest } from "@/lib/discord/run";
 import { canAskFor, canDeleteQuestion, validateAnswer, validateQuestion } from "@/lib/questions/rules";
 import type { FormState } from "@/app/(dashboard)/projects/[id]/actions";
 
@@ -55,4 +56,16 @@ export async function deleteQuestion(questionId: string): Promise<{ error?: stri
   await db.question.delete({ where: { id: questionId } });
   revalidate(q.projectId);
   return {};
+}
+
+export async function sendDigestNow(): Promise<{ sent?: number; error?: string }> {
+  await requireAdmin();
+  try {
+    const r = await runDigest();
+    if (r.skipped) return { error: r.skipped };
+    revalidatePath("/questions");
+    return { sent: r.sent };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "전송에 실패했습니다" };
+  }
 }
