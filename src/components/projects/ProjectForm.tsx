@@ -7,7 +7,7 @@ import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { PRIORITY_ORDER } from "@/lib/projects/labels";
+import { PRIORITY_LABEL, PRIORITY_ORDER } from "@/lib/projects/labels";
 import type { ProjectInput } from "@/lib/projects/validation";
 
 export function ProjectForm({
@@ -33,7 +33,7 @@ export function ProjectForm({
           <Select id="priority" name="priority" defaultValue={d.priority ?? "中"} required>
             {PRIORITY_ORDER.map((p) => (
               <option key={p} value={p}>
-                {p}
+                {PRIORITY_LABEL[p] ?? p}
               </option>
             ))}
           </Select>
