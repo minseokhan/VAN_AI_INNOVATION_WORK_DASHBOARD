@@ -22,7 +22,7 @@
 2. **자기완결성** — 각 step 파일은 독립된 Claude 세션에서 실행된다. "이전 대화에서 논의한 바와 같이" 같은 외부 참조는 금지한다. 필요한 정보는 전부 파일 안에 적는다.
 3. **사전 준비 강제** — 관련 문서 경로와 이전 step에서 생성/수정된 파일 경로를 명시한다. 세션이 코드를 읽고 맥락을 파악한 뒤 작업하도록 유도한다.
 4. **시그니처 수준 지시** — 함수/클래스의 인터페이스만 제시하고 내부 구현은 에이전트 재량에 맡긴다. 단, 설계 의도에서 벗어나면 안 되는 핵심 규칙(멱등성, 보안, 데이터 무결성 등)은 반드시 명시한다.
-5. **AC는 실행 가능한 커맨드** — "~가 동작해야 한다" 같은 추상적 서술이 아닌 `npm run build && npm test` 같은 실제 실행 가능한 검증 커맨드를 포함한다.
+5. **AC는 실행 가능한 커맨드** — "~가 동작해야 한다" 같은 추상적 서술이 아닌 `npm run build && npm test` 같은 실제 실행 가능한 검증 커맨드를 포함한다. AC 커맨드가 환경변수를 요구하면(예: `prisma validate`는 `DATABASE_URL` 존재만 요구) 커맨드에 인라인 placeholder를 포함해 env 없는 무인 실행에서도 돌아가게 한다 (예: `DATABASE_URL=postgresql://x:x@localhost:5432/x npx prisma validate`). 우회 방법은 에이전트 재량이 아니라 step 문서에 적혀 있어야 한다.
 6. **주의사항은 구체적으로** — "조심해라" 대신 "X를 하지 마라. 이유: Y" 형식으로 적는다.
 7. **네이밍** — step name은 kebab-case slug로, 해당 step의 핵심 모듈/작업을 한두 단어로 표현한다 (예: `project-setup`, `api-layer`, `auth-flow`).
 
@@ -130,6 +130,15 @@ npm test        # 테스트 통과
 ```
 
 ### E. 실행
+
+실행 주체는 둘 중 하나다. 어느 쪽이든 step 하나 = 컨텍스트가 비어 있는 새 세션 하나가 원칙이다.
+
+| 실행 위치 | 방법 | 비고 |
+|-----------|------|------|
+| 사용자 터미널 | `python3 scripts/execute.py {task-name}` | 내부적으로 `claude -p --dangerously-skip-permissions` 호출 |
+| Claude Code 세션 안 (auto/default 모드) | step(또는 phase)마다 Agent 도구로 general-purpose 서브에이전트를 **순차** 생성 | 중첩 `claude -p --dangerously-skip-permissions`는 권한 분류기가 차단한다. 컨텍스트 격리는 프로세스 격리가 아니라 새 컨텍스트 창이면 충분하다 |
+| Claude Code 세션 안 (`--dangerously-skip-permissions`로 시작) | `claude -p --dangerously-skip-permissions "<step 프롬프트>"`를 순차 호출 | 진짜 별도 세션. 장시간 실행은 nohup + 로그 파일로 분리하고 종료를 폴링한다 |
+
 
 ```bash
 python3 scripts/execute.py {task-name}        # 순차 실행
