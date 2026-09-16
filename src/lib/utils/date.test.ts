@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, relativeDays } from "./date";
+import { daysSince, formatDate, relativeDays } from "./date";
 
 describe("formatDate", () => {
   it("YYYY-MM-DD (KST 기준)", () => {
@@ -26,5 +26,17 @@ describe("relativeDays", () => {
   it("시각이 달라도 날짜 차이로 센다", () => {
     expect(relativeDays("2026-09-14T14:59:00Z", now)).toBe("1일 전"); // KST 09/14 23:59
     expect(relativeDays("2026-09-14T15:00:00Z", now)).toBe("오늘"); // KST 09/15 00:00
+  });
+});
+
+describe("daysSince", () => {
+  const now = new Date("2026-09-16T03:00:00Z");
+  it("KST 달력일 차이 (0 이상)", () => {
+    expect(daysSince("2026-09-16T00:00:00Z", now)).toBe(0);
+    expect(daysSince(new Date("2026-09-02T00:00:00Z"), now)).toBe(14);
+  });
+  it("경계: KST 자정 직전/직후", () => {
+    expect(daysSince("2026-09-15T14:59:00Z", now)).toBe(1);
+    expect(daysSince("2026-09-15T15:00:00Z", now)).toBe(0);
   });
 });

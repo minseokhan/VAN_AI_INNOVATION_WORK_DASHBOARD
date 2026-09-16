@@ -5,14 +5,16 @@
     {
       "step": 0,
       "name": "weekly-update",
-      "status": "pending",
-      "linear": "V-19"
+      "status": "completed",
+      "linear": "V-19",
+      "summary": "lib/utils/week.ts(getWeekStart KST→UTC자정, formatWeekLabel, isCurrentWeek) + lib/projects/info.ts(validateProjectInfo/validateWeekly + parse*Form) + date.ts daysSince, 테스트 22건. actions.ts updateProjectInfo/submitWeeklyUpdate(requireEditor, 주당 upsert). components/projects/{SidePanel(승격),ProjectInfoPanel,WeeklyUpdateForm,WeeklyUpdates}. 상세 페이지 weeklyUpdates 전체+author 조회. ProjectCard: IN_PROGRESS + 14일 미보고(없으면 startedAt 기준) amber 'N일째 보고 없음'(queries에 startedAt 추가)"
     },
     {
       "step": 1,
       "name": "plan-docs",
-      "status": "pending",
-      "linear": "V-20"
+      "status": "completed",
+      "linear": "V-20",
+      "summary": "lib/plan-docs/validation.ts(validateUploadFile 20MB·확장자 10종, validatePlanLink, safeFileName 확장자 보존 100자) 테스트 9건. POST /api/upload(requireAdmin→401/403 JSON, BLOB_READ_WRITE_TOKEN 없으면 503, 서버 재검증 후 @vercel/blob put addRandomSuffix). actions addPlanDoc/deletePlanDoc(requireAdmin, FILE은 del 시도 후 DB 삭제). components/projects/PlanDocs.tsx(파일/링크 탭, 업로드 중 상태, ConfirmButton 삭제). Blob 토큰: 이 세션에는 없음 — 파일 업로드 미검증, 링크 등록 경로는 토큰 무관"
     }
   ],
   "linear": "V-6"

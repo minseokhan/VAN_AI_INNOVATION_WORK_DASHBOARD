@@ -6,10 +6,14 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { STATUS_LABEL, STATUS_TONE } from "@/lib/projects/labels";
 import type { ProjectCardData } from "@/lib/projects/queries";
 import { cn } from "@/lib/utils/cn";
-import { formatDate, relativeDays } from "@/lib/utils/date";
+import { daysSince, formatDate, relativeDays } from "@/lib/utils/date";
 
 export function ProjectCard({ project: p }: { project: ProjectCardData }) {
   const overdue = p.dueDate !== null && p.status !== "DONE" && formatDate(p.dueDate) < formatDate(new Date());
+  // 진행중인데 마지막 보고(없으면 시작일)로부터 14일 이상 지나면 경고
+  const lastActivity = p.lastReportAt ?? p.startedAt;
+  const silentDays = p.status === "IN_PROGRESS" && lastActivity ? daysSince(lastActivity) : 0;
+  const stale = silentDays >= 14;
   return (
     <Card href={`/projects/${p.id}`} className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
@@ -17,7 +21,9 @@ export function ProjectCard({ project: p }: { project: ProjectCardData }) {
           <Badge tone={STATUS_TONE[p.status]}>{STATUS_LABEL[p.status]}</Badge>
           <Badge>{p.priority}</Badge>
         </div>
-        <span className="text-xs text-slate-500">{p.lastReportAt ? `보고 ${relativeDays(p.lastReportAt)}` : "보고 없음"}</span>
+        <span className={cn("text-xs", stale ? "text-amber-700" : "text-slate-500")}>
+          {stale ? `${silentDays}일째 보고 없음` : p.lastReportAt ? `보고 ${relativeDays(p.lastReportAt)}` : "보고 없음"}
+        </span>
       </div>
       <div>
         <p className="text-xs text-slate-500">{p.code}</p>
