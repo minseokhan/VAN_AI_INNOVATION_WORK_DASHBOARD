@@ -150,9 +150,16 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <Section
             title="질문"
             action={
-              <Link href={`/questions?project=${id}`} className="text-sm text-navy-500 hover:underline">
-                전체 보기
-              </Link>
+              <div className="flex items-center gap-3">
+                {canEdit && (
+                  <Link href={`/questions?project=${id}`} className="text-sm text-navy-500 hover:underline">
+                    질문하기
+                  </Link>
+                )}
+                <Link href={`/questions?project=${id}`} className="text-sm text-navy-500 hover:underline">
+                  전체 보기
+                </Link>
+              </div>
             }
           >
             {project.questions.length === 0 ? (
