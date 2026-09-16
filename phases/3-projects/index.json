@@ -5,20 +5,23 @@
     {
       "step": 0,
       "name": "project-list",
-      "status": "pending",
-      "linear": "V-14"
+      "status": "completed",
+      "linear": "V-14",
+      "summary": "lib/projects/{progress,summary,filter,queries}.ts + 테스트 4파일 15건; components/projects/{ProjectCard,FilterBar}.tsx; (dashboard)/page.tsx 요약 4칸+필터(URL 쿼리, 검색 300ms 디바운스)+카드 그리드. _count는 features select로 대체"
     },
     {
       "step": 1,
       "name": "project-detail",
-      "status": "pending",
-      "linear": "V-15"
+      "status": "completed",
+      "linear": "V-15",
+      "summary": "lib/projects/features.ts(nextOrder, validateFeatureTitle, canTransitionStatus) + lib/utils/linkify.ts + 테스트 13건; projects/[id]/{page,actions}.ts(toggle/add/deleteFeature, setProjectStatus — requireUser+canEditProject); components/projects/FeatureChecklist.tsx(useOptimistic). 상태 전환은 인라인 서버 액션 폼, ADMIN에게 /projects/[id]/edit 링크"
     },
     {
       "step": 2,
       "name": "project-admin",
-      "status": "pending",
-      "linear": "V-16"
+      "status": "completed",
+      "linear": "V-16",
+      "summary": "lib/projects/validation.ts(validateProject, parseProjectForm) + 테스트 10건; projects/actions.ts(createProject/updateProject/deleteProject — requireAdmin, P2002→fieldErrors.code); components/projects/{ProjectForm,DeleteProjectButton}.tsx(2단계 삭제 확인); projects/new + projects/[id]/edit 페이지"
     }
   ],
   "linear": "V-4"
