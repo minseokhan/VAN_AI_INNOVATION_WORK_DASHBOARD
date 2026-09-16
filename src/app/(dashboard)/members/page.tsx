@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
-import { MemberRow, PendingRow } from "@/components/members/MemberRow";
+import { MemberRow, PendingCard } from "@/components/members/MemberRow";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 
@@ -18,7 +18,7 @@ export default async function MembersPage() {
   const users = await db.user.findMany({
     orderBy: { createdAt: "asc" },
     select: {
-      id: true, username: true, name: true, role: true, adminType: true, approved: true, createdAt: true,
+      id: true, username: true, name: true, role: true, approved: true, createdAt: true,
       _count: { select: { memberships: true } },
     },
   });
@@ -29,16 +29,6 @@ export default async function MembersPage() {
   return (
     <div className="space-y-8">
       <PageHeader title="멤버 관리" />
-      {pending.length > 0 && (
-        <section className="rounded-md border border-amber-300 p-5">
-          <h2 className="mb-1 text-sm font-semibold text-slate-900">승인 대기 ({pending.length})</h2>
-          <ul className="divide-y divide-slate-100">
-            {pending.map((u) => (
-              <PendingRow key={u.id} user={u} />
-            ))}
-          </ul>
-        </section>
-      )}
       <section>
         <h2 className="mb-3 text-sm font-semibold text-slate-900">멤버 ({members.length})</h2>
         {members.length === 0 ? (
@@ -51,9 +41,8 @@ export default async function MembersPage() {
                   <th className={th}>이름</th>
                   <th className={th}>아이디</th>
                   <th className={th}>역할</th>
-                  <th className={th}>운영진 구분</th>
                   <th className={th}>참여 프로젝트</th>
-                  <th className={`${th} text-right`}>액션</th>
+                  <th className={th}>액션</th>
                 </tr>
               </thead>
               <tbody>
@@ -68,6 +57,18 @@ export default async function MembersPage() {
               </tbody>
             </table>
           </div>
+        )}
+      </section>
+      <section>
+        <h2 className="mb-3 text-sm font-semibold text-slate-900">승인 대기 ({pending.length})</h2>
+        {pending.length === 0 ? (
+          <EmptyState message="승인 대기 중인 요청이 없습니다" />
+        ) : (
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {pending.map((u) => (
+              <PendingCard key={u.id} user={u} />
+            ))}
+          </ul>
         )}
       </section>
     </div>

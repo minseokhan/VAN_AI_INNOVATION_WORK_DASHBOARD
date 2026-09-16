@@ -47,12 +47,3 @@ export async function setRole(userId: string, role: "ADMIN" | "MEMBER"): Promise
   revalidate();
   return {};
 }
-
-export async function setAdminType(userId: string, type: "PLANNING" | "DEV" | null): Promise<{ error?: string }> {
-  await requireAdmin();
-  if (type !== null && type !== "PLANNING" && type !== "DEV") return { error: "잘못된 구분입니다" };
-  const { count } = await db.user.updateMany({ where: { id: userId, role: "ADMIN" }, data: { adminType: type } });
-  if (count === 0) return { error: "운영진만 구분을 설정할 수 있습니다" };
-  revalidate();
-  return {};
-}
