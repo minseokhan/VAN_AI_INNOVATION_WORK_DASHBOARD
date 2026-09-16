@@ -214,6 +214,11 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 ))}
               </ul>
             )}
+            {user.role === "ADMIN" && (
+              <Link href="/assign" className="mt-3 inline-block text-xs text-navy-500 hover:underline">
+                배치 보드에서 편집
+              </Link>
+            )}
           </SidePanel>
           <SidePanel title="초기 정보">
             <dl className="space-y-2">
