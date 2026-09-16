@@ -1,11 +1,32 @@
 {
   "phases": [
-    { "dir": "0-setup", "status": "completed" },
-    { "dir": "1-auth", "status": "pending" },
-    { "dir": "2-layout", "status": "pending" },
-    { "dir": "3-projects", "status": "pending" },
-    { "dir": "4-members", "status": "pending" },
-    { "dir": "5-progress", "status": "pending" },
-    { "dir": "6-questions", "status": "pending" }
+    {
+      "dir": "0-setup",
+      "status": "completed"
+    },
+    {
+      "dir": "1-auth",
+      "status": "completed"
+    },
+    {
+      "dir": "2-layout",
+      "status": "pending"
+    },
+    {
+      "dir": "3-projects",
+      "status": "pending"
+    },
+    {
+      "dir": "4-members",
+      "status": "pending"
+    },
+    {
+      "dir": "5-progress",
+      "status": "pending"
+    },
+    {
+      "dir": "6-questions",
+      "status": "pending"
+    }
   ]
 }
