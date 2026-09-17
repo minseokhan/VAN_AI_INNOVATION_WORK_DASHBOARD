@@ -36,6 +36,13 @@ enum PlanDocKind {
   LINK
 }
 
+enum SkillLevel {
+  BEGINNER
+  NOVICE
+  INTERMEDIATE
+  ADVANCED
+}
+
 model User {
   id           String     @id @default(cuid())
   username     String     @unique
@@ -46,12 +53,19 @@ model User {
   approved     Boolean    @default(false)
   createdAt    DateTime   @default(now())
 
+  // 역량 프로필 (본인이 /settings에서 작성, 운영진이 열람)
+  level     SkillLevel?
+  skills    String?
+  interests String?
+  bio       String?
+
   memberships      ProjectMember[]
   createdFeatures  Feature[]       @relation("FeatureCreatedBy")
   weeklyUpdates    WeeklyUpdate[]
   uploadedPlanDocs PlanDoc[]
   questions        Question[]      @relation("QuestionAuthor")
   answers          Question[]      @relation("QuestionAnsweredBy")
+  profileLinks     ProfileLink[]
 }
 
 model Project {
@@ -120,6 +134,22 @@ model WeeklyUpdate {
   author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, weekStart])
+}
+
+/**
+ * 개인 포트폴리오·이력서 링크 또는 업로드 파일
+ */
+model ProfileLink {
+  id        String      @id @default(cuid())
+  userId    String
+  title     String
+  kind      PlanDocKind
+  url       String
+  createdAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model PlanDoc {

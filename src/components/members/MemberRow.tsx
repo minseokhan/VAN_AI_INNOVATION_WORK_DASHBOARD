@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { approveUser, rejectUser, setRole } from "@/app/(dashboard)/members/actions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { LEVEL_LABEL } from "@/lib/profile/validation";
 import { formatDate } from "@/lib/utils/date";
 
 type Member = {
@@ -13,6 +15,7 @@ type Member = {
   username: string;
   name: string;
   role: "ADMIN" | "MEMBER";
+  level: keyof typeof LEVEL_LABEL | null;
   createdAt: Date;
   projectCount: number;
 };
@@ -68,15 +71,18 @@ export function MemberRow({ user, isSelf, adminCount }: { user: Member; isSelf: 
     <>
       <tr className="border-b border-slate-100">
         <td className="px-3 py-2">
-          <span className="inline-flex items-center gap-2 text-sm text-slate-900">
+          <Link href={`/members/${user.id}`} className="inline-flex items-center gap-2 text-sm text-slate-900 hover:underline">
             <Avatar name={user.name} />
             {user.name}
             {isSelf && <span className="text-xs text-slate-500">(나)</span>}
-          </span>
+          </Link>
         </td>
         <td className="px-3 py-2 text-sm text-slate-700">{user.username}</td>
         <td className="px-3 py-2">
           <Badge tone={isAdmin ? "navy" : "neutral"}>{isAdmin ? "운영진" : "부원"}</Badge>
+        </td>
+        <td className="px-3 py-2 text-sm text-slate-700">
+          {user.level ? LEVEL_LABEL[user.level] : <span className="text-slate-400">미작성</span>}
         </td>
         <td className="px-3 py-2 text-sm tabular-nums text-slate-700">{user.projectCount}</td>
         <td className="px-3 py-2">
@@ -93,7 +99,7 @@ export function MemberRow({ user, isSelf, adminCount }: { user: Member; isSelf: 
       </tr>
       {error && (
         <tr>
-          <td colSpan={5} className="px-3 pb-2">
+          <td colSpan={6} className="px-3 pb-2">
             <p className="text-xs text-red-700">{error}</p>
           </td>
         </tr>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutGrid, MessageSquare, Plus, UserCheck, Users, type LucideIcon } from "lucide-react";
+import { FileText, LayoutGrid, MessageSquare, Plus, Settings, UserCheck, Users, type LucideIcon } from "lucide-react";
 import { logout } from "@/app/(auth)/actions";
 import type { SessionUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils/cn";
@@ -13,6 +13,7 @@ type Item = { href: string; label: string; icon: LucideIcon };
 const MAIN: Item[] = [
   { href: "/", label: "대시보드", icon: LayoutGrid },
   { href: "/questions", label: "질문", icon: MessageSquare },
+  { href: "/settings", label: "개인 설정", icon: Settings },
 ];
 
 const ADMIN: Item[] = [
