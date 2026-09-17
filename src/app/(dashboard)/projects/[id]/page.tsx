@@ -16,7 +16,7 @@ import { SidePanel } from "@/components/projects/SidePanel";
 import { WeeklyUpdates } from "@/components/projects/WeeklyUpdates";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClass } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { setProjectStatus } from "./actions";
@@ -102,7 +102,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               </form>
             )}
             {user.role === "ADMIN" && (
-              <Link href={`/projects/${id}/edit`} className="text-sm text-navy-500 hover:underline">
+              <Link href={`/projects/${id}/edit`} className={buttonClass({ variant: "secondary" })}>
                 편집
               </Link>
             )}
