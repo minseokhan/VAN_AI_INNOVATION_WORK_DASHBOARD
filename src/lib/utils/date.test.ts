@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysSince, formatDate, relativeDays } from "./date";
+import { daysSince, formatDate, formatDateTime, relativeDays } from "./date";
 
 describe("formatDate", () => {
   it("YYYY-MM-DD (KST 기준)", () => {
@@ -38,5 +38,14 @@ describe("daysSince", () => {
   it("경계: KST 자정 직전/직후", () => {
     expect(daysSince("2026-09-15T14:59:00Z", now)).toBe(1);
     expect(daysSince("2026-09-15T15:00:00Z", now)).toBe(0);
+  });
+});
+
+describe("formatDateTime", () => {
+  it("M/D HH:mm (KST 기준)", () => {
+    expect(formatDateTime(new Date("2026-09-15T05:20:00Z"))).toBe("9/15 14:20");
+  });
+  it("UTC 자정 직전은 KST로 다음 날", () => {
+    expect(formatDateTime("2026-09-15T20:00:00Z")).toBe("9/16 05:00");
   });
 });

@@ -52,6 +52,7 @@ model User {
   uploadedPlanDocs PlanDoc[]
   questions        Question[]      @relation("QuestionAuthor")
   answers          Question[]      @relation("QuestionAnsweredBy")
+  reportNotes      ReportNote[]
 }
 
 model Project {
@@ -115,11 +116,22 @@ model WeeklyUpdate {
   planNextWeek String
   issues       String?
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, weekStart])
+}
+
+/** 주차별 운영진 총평·특이사항. 한 주에 하나 */
+model ReportNote {
+  weekStart DateTime @id @db.Date
+  authorId  String
+  content   String
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model PlanDoc {
