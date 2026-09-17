@@ -9,7 +9,7 @@ export function MobileHeader({ user, pendingCount }: { user: SessionUser; pendin
   const [open, setOpen] = useState(false);
   return (
     <>
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
+      <header className="no-print flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
         <span className="text-base font-semibold text-slate-900">VAN AI 혁신부</span>
         <button
           type="button"
