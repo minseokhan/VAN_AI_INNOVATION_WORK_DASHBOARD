@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
 import { canEditProject } from "@/lib/auth/permissions";
 import { canTransitionStatus } from "@/lib/projects/features";
-import { POSITION_LABEL, STATUS_LABEL, STATUS_TONE } from "@/lib/projects/labels";
+import { POSITION_LABEL, PRIORITY_LABEL, PRIORITY_TONE, STATUS_LABEL, STATUS_TONE } from "@/lib/projects/labels";
 import { calcProgress } from "@/lib/projects/progress";
 import { formatDate } from "@/lib/utils/date";
 import { linkify } from "@/lib/utils/linkify";
@@ -16,7 +16,7 @@ import { SidePanel } from "@/components/projects/SidePanel";
 import { WeeklyUpdates } from "@/components/projects/WeeklyUpdates";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClass } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { setProjectStatus } from "./actions";
@@ -89,7 +89,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             <h1 className="text-2xl font-semibold text-slate-900">{project.title}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               <Badge tone={STATUS_TONE[project.status]}>{STATUS_LABEL[project.status]}</Badge>
-              <Badge>{project.priority}</Badge>
+              <Badge tone={PRIORITY_TONE[project.priority]}>{PRIORITY_LABEL[project.priority] ?? project.priority}</Badge>
               <Badge>{project.category}</Badge>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               </form>
             )}
             {user.role === "ADMIN" && (
-              <Link href={`/projects/${id}/edit`} className="text-sm text-navy-500 hover:underline">
+              <Link href={`/projects/${id}/edit`} className={buttonClass({ variant: "secondary" })}>
                 편집
               </Link>
             )}

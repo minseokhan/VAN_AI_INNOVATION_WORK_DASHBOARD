@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
 import { formatDate } from "@/lib/utils/date";
 import { ProjectForm } from "@/components/projects/ProjectForm";
-import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { deleteProject, updateProject } from "../../actions";
 
@@ -28,16 +28,19 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
         categories={rows.map((c) => c.category)}
         submitLabel="저장"
         defaultValues={{ ...project, dueDate: project.dueDate ? formatDate(project.dueDate) : "" }}
+        cancelHref={`/projects/${id}`}
+        extraActions={
+          <div className="ml-auto">
+            <ConfirmDialog
+              label="프로젝트 삭제"
+              title="프로젝트를 삭제할까요?"
+              message={`"${project.title}"의 기능·주간 보고·기획안·질문이 모두 삭제되며 되돌릴 수 없습니다.`}
+              confirmLabel="삭제"
+              onConfirm={deleteProject.bind(null, id)}
+            />
+          </div>
+        }
       />
-      <section className="mt-12 max-w-2xl rounded-md border border-red-200 p-4">
-        <h2 className="mb-3 text-sm font-semibold text-red-700">위험 구역</h2>
-        <ConfirmButton
-          label="프로젝트 삭제"
-          confirmLabel="삭제 확인"
-          message="정말 삭제하시겠습니까? 기능·보고·질문이 모두 삭제됩니다"
-          onConfirm={deleteProject.bind(null, id)}
-        />
-      </section>
     </>
   );
 }

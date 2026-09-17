@@ -3,7 +3,7 @@ import { AvatarGroup } from "@/components/ui/AvatarGroup";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { STATUS_LABEL, STATUS_TONE } from "@/lib/projects/labels";
+import { PRIORITY_LABEL, PRIORITY_TONE, STATUS_LABEL, STATUS_TONE } from "@/lib/projects/labels";
 import type { ProjectCardData } from "@/lib/projects/queries";
 import { cn } from "@/lib/utils/cn";
 import { daysSince, formatDate, relativeDays } from "@/lib/utils/date";
@@ -19,7 +19,7 @@ export function ProjectCard({ project: p }: { project: ProjectCardData }) {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <Badge tone={STATUS_TONE[p.status]}>{STATUS_LABEL[p.status]}</Badge>
-          <Badge>{p.priority}</Badge>
+          <Badge tone={PRIORITY_TONE[p.priority]}>{PRIORITY_LABEL[p.priority] ?? p.priority}</Badge>
         </div>
         <span className={cn("text-xs", stale ? "text-amber-700" : "text-slate-500")}>
           {stale ? `${silentDays}일째 보고 없음` : p.lastReportAt ? `보고 ${relativeDays(p.lastReportAt)}` : "보고 없음"}

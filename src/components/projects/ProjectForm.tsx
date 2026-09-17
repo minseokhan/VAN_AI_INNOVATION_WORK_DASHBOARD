@@ -1,13 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import type { FormState } from "@/app/(dashboard)/projects/actions";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClass } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { PRIORITY_ORDER } from "@/lib/projects/labels";
+import { PRIORITY_LABEL, PRIORITY_ORDER } from "@/lib/projects/labels";
 import type { ProjectInput } from "@/lib/projects/validation";
 
 export function ProjectForm({
@@ -15,11 +16,16 @@ export function ProjectForm({
   defaultValues: d = {},
   categories,
   submitLabel,
+  cancelHref,
+  extraActions,
 }: {
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   defaultValues?: Partial<ProjectInput>;
   categories: string[];
   submitLabel: string;
+  cancelHref: string;
+  /** 저장 버튼 오른쪽에 붙는 추가 액션 (예: 삭제) */
+  extraActions?: React.ReactNode;
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(action, {});
   const errors = state.fieldErrors ?? {};
@@ -33,7 +39,7 @@ export function ProjectForm({
           <Select id="priority" name="priority" defaultValue={d.priority ?? "中"} required>
             {PRIORITY_ORDER.map((p) => (
               <option key={p} value={p}>
-                {p}
+                {PRIORITY_LABEL[p] ?? p}
               </option>
             ))}
           </Select>
@@ -62,9 +68,15 @@ export function ProjectForm({
         <Textarea id="description" name="description" defaultValue={d.description} maxLength={5000} rows={8} />
       </Field>
       {state.error && <p className="text-xs text-red-700">{state.error}</p>}
-      <Button type="submit" disabled={pending}>
-        {submitLabel}
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href={cancelHref} className={buttonClass({ variant: "secondary" })}>
+          취소
+        </Link>
+        <Button type="submit" disabled={pending}>
+          {submitLabel}
+        </Button>
+        {extraActions}
+      </div>
     </form>
   );
 }

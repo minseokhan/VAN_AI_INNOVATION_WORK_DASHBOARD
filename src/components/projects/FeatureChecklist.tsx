@@ -67,7 +67,7 @@ export function FeatureChecklist({ projectId, features, canEdit }: { projectId: 
         <form ref={formRef} action={add} className="mt-3">
           <div className="flex gap-2">
             <Input name="title" aria-label="기능 추가" placeholder="기능 추가 후 Enter" maxLength={120} required disabled={adding} />
-            <Button type="submit" variant="secondary" disabled={adding}>
+            <Button type="submit" variant="secondary" disabled={adding} className="shrink-0">
               추가
             </Button>
           </div>

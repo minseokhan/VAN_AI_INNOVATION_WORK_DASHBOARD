@@ -18,7 +18,7 @@ export default async function NewProjectPage() {
   return (
     <>
       <PageHeader title="새 프로젝트" />
-      <ProjectForm action={createProject} categories={categories} submitLabel="생성" />
+      <ProjectForm action={createProject} categories={categories} submitLabel="생성" cancelHref="/" />
     </>
   );
 }
