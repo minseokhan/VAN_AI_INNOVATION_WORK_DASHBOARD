@@ -48,7 +48,7 @@ export function Sidebar({
       <Icon size={16} strokeWidth={1.75} aria-hidden />
       <span className="flex-1">{label}</span>
       {href === "/members" && pendingCount > 0 && (
-        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium tabular-nums text-amber-700">
+        <span className="rounded bg-navy-100 px-1.5 py-0.5 text-xs font-medium tabular-nums text-navy-700">
           {pendingCount}
         </span>
       )}

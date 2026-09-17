@@ -94,7 +94,7 @@ done:     line-through text-slate-400
 
 ## 레이아웃
 - 좌측 사이드바 고정 `w-60 bg-navy-900 text-white`, 메뉴 활성 항목 `bg-white/10`. 모바일에서는 상단 바 + 햄버거.
-- 본문 `max-w-6xl px-6 py-8`, 좌측 정렬. 중앙 정렬은 인증 페이지만.
+- 본문 `mx-auto max-w-6xl px-6 py-8`, 사이드바 옆 남은 폭에서 가운데 정렬.
 - 카드 그리드 `grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`.
 - 섹션 간 `space-y-8`, 섹션 제목 `text-sm font-semibold text-slate-900` + 우측 액션 버튼.
 
