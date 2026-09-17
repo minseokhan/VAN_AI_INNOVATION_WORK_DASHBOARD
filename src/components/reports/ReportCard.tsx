@@ -45,8 +45,6 @@ export function ReportCard({
   if (!update) {
     return (
       <li className="flex flex-wrap items-center gap-2 rounded-md border border-slate-200 px-4 py-3">
-        {/* 펼침 화살표 자리 — 제출 카드와 제목 시작선을 맞춘다 */}
-        <span className="w-4 shrink-0 print:hidden" aria-hidden />
         <Title project={project} />
         {showMissingBadge && <Badge tone="amber">미제출</Badge>}
       </li>
