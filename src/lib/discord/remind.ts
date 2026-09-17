@@ -29,7 +29,7 @@ export function buildReminderMessages(missing: MissingReport[], { weekLabel, bas
   for (const m of targets) {
     const mentions = m.memberNames.map((n) => `@${n}`).join(" ");
     push(
-      `${mentions} 님 **[${m.projectCode}] ${m.projectTitle}** 주간보고가 아직 미제출 상태입니다. ${deadline}까지 제출해주세요.\n${baseUrl}/projects/${m.projectId}`,
+      `${mentions} 님 **[${m.projectCode}] ${m.projectTitle}** 주간보고가 아직 미제출 상태입니다. ${deadline}까지 제출해주시면 감사하겠습니다.\n${baseUrl}/projects/${m.projectId}`,
       "\n\n",
     );
   }

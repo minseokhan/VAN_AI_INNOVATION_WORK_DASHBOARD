@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
+import { buildWeeklyReminder } from "@/lib/discord/run";
 import { buildSections } from "@/lib/reports/sections";
-import { monthOptions, parseWeekParam } from "@/lib/reports/weekly";
+import { parseWeekParam } from "@/lib/reports/weekly";
 import { formatDateTime } from "@/lib/utils/date";
-import { formatWeekLabel } from "@/lib/utils/week";
+import { formatWeekLabel, getWeekStart } from "@/lib/utils/week";
 import { ReminderButton } from "@/components/reports/ReminderButton";
 import { ReportCard } from "@/components/reports/ReportCard";
 import { ReportNoteForm } from "@/components/reports/ReportNoteForm";
@@ -23,10 +24,10 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
   }
   const week = parseWeekParam((await searchParams).week);
 
-  const [projects, updates, allWeeks, note] = await Promise.all([
+  const [projects, updates, note, reminder] = await Promise.all([
     db.project.findMany({
       orderBy: { code: "asc" },
-      select: { id: true, code: true, title: true, status: true, members: { select: { user: { select: { name: true } } } } },
+      select: { id: true, code: true, title: true, status: true },
     }),
     db.weeklyUpdate.findMany({
       where: { weekStart: week },
@@ -40,23 +41,17 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         author: { select: { name: true } },
       },
     }),
-    db.weeklyUpdate.findMany({ distinct: ["weekStart"], select: { weekStart: true } }),
     db.reportNote.findUnique({ where: { weekStart: week }, select: { content: true, updatedAt: true, author: { select: { name: true } } } }),
+    buildWeeklyReminder(week),
   ]);
 
   const byProject = new Map(updates.map((u) => [u.projectId, u]));
   const sections = buildSections(projects, new Set(byProject.keys()));
-  const months = monthOptions(allWeeks.map((w) => w.weekStart));
-
-  // 독촉 대상: 진행 중인데 그 주 보고가 없고, 부를 멤버가 있는 팀
-  const preview = sections[0].rows
-    .filter((r) => !r.submitted && r.project.members.length > 0)
-    .map((r) => `@${r.project.members.map((m) => m.user.name).join(" @")} 님 [${r.project.code}] ${r.project.title}`);
 
   return (
     <>
       <PageHeader title="주간 보고" />
-      <ReportToolbar months={months} week={ymd(week)} />
+      <ReportToolbar week={ymd(week)} thisWeek={ymd(getWeekStart(new Date()))} />
 
       <h2 className="mb-4 text-lg font-semibold text-slate-900">{formatWeekLabel(week)}</h2>
 
@@ -65,7 +60,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         initial={note?.content ?? ""}
         meta={note ? `${note.author.name} · ${formatDateTime(note.updatedAt)}` : null}
       />
-      <ReminderButton week={ymd(week)} preview={preview} />
+      <ReminderButton week={ymd(week)} teams={reminder.teams} messages={reminder.messages} />
 
       <div className="space-y-8">
         {sections.map((s) => (

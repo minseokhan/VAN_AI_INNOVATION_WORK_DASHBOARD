@@ -37,11 +37,11 @@ export async function runDigest(now: Date = new Date()): Promise<{ sent: number;
 
 const DEADLINE = "일요일 23:59";
 
-/** 그 주 주간보고를 내지 않은 진행 중 프로젝트의 배치 멤버에게 독촉 메시지를 보낸다 */
-export async function runWeeklyReminder(weekStart: Date): Promise<{ sent: number; skipped?: string }> {
-  const url = process.env.DISCORD_WEBHOOK_URL;
-  if (!url) return { sent: 0, skipped: "DISCORD_WEBHOOK_URL 미설정" };
-
+/**
+ * 그 주 주간보고를 내지 않은 진행 중 프로젝트의 독촉 메시지.
+ * 미리보기와 실제 전송이 같은 문구가 되도록 양쪽 모두 이 함수를 쓴다.
+ */
+export async function buildWeeklyReminder(weekStart: Date): Promise<{ messages: string[]; teams: number }> {
   const projects = await db.project.findMany({
     where: { status: "IN_PROGRESS", weeklyUpdates: { none: { weekStart } } },
     orderBy: { code: "asc" },
@@ -58,8 +58,16 @@ export async function runWeeklyReminder(weekStart: Date): Promise<{ sent: number
     })),
     { weekLabel: formatWeekLabel(weekStart), baseUrl, deadline: DEADLINE },
   );
+  return { messages, teams: projects.filter((p) => p.members.length > 0).length };
+}
+
+export async function runWeeklyReminder(weekStart: Date): Promise<{ sent: number; skipped?: string }> {
+  const url = process.env.DISCORD_WEBHOOK_URL;
+  if (!url) return { sent: 0, skipped: "DISCORD_WEBHOOK_URL 미설정" };
+
+  const { messages, teams } = await buildWeeklyReminder(weekStart);
   if (messages.length === 0) return { sent: 0 };
 
   await sendWebhook(url, messages);
-  return { sent: projects.filter((p) => p.members.length > 0).length };
+  return { sent: teams };
 }

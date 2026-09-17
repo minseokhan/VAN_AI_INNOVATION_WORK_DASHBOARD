@@ -14,18 +14,12 @@ export type ReportCardUpdate = {
 
 export type ReportCardProject = { id: string; code: string; title: string };
 
-/** 세 항목이 눈으로 구분되도록 좌측 색 띠 + 라벨을 붙인다 */
-const BLOCK = {
-  did: "border-navy-500 bg-navy-50",
-  plan: "border-slate-300 bg-slate-50",
-  issues: "border-amber-400 bg-amber-50",
-} as const;
-
-function Block({ tone, label, text }: { tone: keyof typeof BLOCK; label: string; text: string }) {
+/** 세 항목은 배경색 대신 라벨 열 + 가로 구분선으로 나눈다 */
+function Block({ label, text }: { label: string; text: string }) {
   return (
-    <div className={`border-l-2 py-2 pl-3 pr-2 ${BLOCK[tone]}`}>
-      <p className="mb-1 text-xs font-semibold text-slate-600">{label}</p>
-      <p className="whitespace-pre-line text-sm leading-relaxed text-slate-800">{text}</p>
+    <div className="grid gap-x-4 gap-y-1 py-3 sm:grid-cols-[6.5rem_1fr]">
+      <dt className="text-xs font-semibold text-slate-500">{label}</dt>
+      <dd className="whitespace-pre-line text-sm leading-relaxed text-slate-800">{text}</dd>
     </div>
   );
 }
@@ -51,6 +45,8 @@ export function ReportCard({
   if (!update) {
     return (
       <li className="flex flex-wrap items-center gap-2 rounded-md border border-slate-200 px-4 py-3">
+        {/* 펼침 화살표 자리 — 제출 카드와 제목 시작선을 맞춘다 */}
+        <span className="w-4 shrink-0 print:hidden" aria-hidden />
         <Title project={project} />
         {showMissingBadge && <Badge tone="amber">미제출</Badge>}
       </li>
@@ -67,7 +63,7 @@ export function ReportCard({
             size={16}
             strokeWidth={1.75}
             aria-hidden
-            className="shrink-0 text-slate-400 transition-transform group-open:rotate-90 print:hidden"
+            className="w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90 print:hidden"
           />
           <Title project={project} />
           <Badge tone="green">제출함</Badge>
@@ -76,11 +72,11 @@ export function ReportCard({
             {edited && " (수정됨)"}
           </span>
         </summary>
-        <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-          <Block tone="did" label="이번 주 한 일" text={update.didThisWeek} />
-          <Block tone="plan" label="다음 주 계획" text={update.planNextWeek} />
-          {update.issues && <Block tone="issues" label="이슈 · 막힌 점" text={update.issues} />}
-        </div>
+        <dl className="divide-y divide-slate-100 border-t border-slate-200 px-4">
+          <Block label="이번 주 한 일" text={update.didThisWeek} />
+          <Block label="다음 주 계획" text={update.planNextWeek} />
+          {update.issues && <Block label="이슈 · 막힌 점" text={update.issues} />}
+        </dl>
       </details>
     </li>
   );
