@@ -23,6 +23,7 @@ phases/**/step*-output.json
 /coverage
 # next.js
 /.next/
+/.next-check/
 /out/
 # production
 /build

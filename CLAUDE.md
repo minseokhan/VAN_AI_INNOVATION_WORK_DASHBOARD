@@ -26,6 +26,7 @@ VAN 학회 AI 혁신부 운영진·부원이 프로젝트 배치, 진행 상황,
 - CRITICAL: `src/lib/` 아래 새 모듈은 반드시 테스트(`*.test.ts`)를 먼저 작성하고, 통과하는 구현을 작성한다 (TDD). `.claude/hooks/tdd-guard.sh`가 이를 강제한다.
 - 커밋 메시지는 conventional commits 형식 (feat:, fix:, docs:, refactor:, chore:).
 - 사용자 개입이 필요한 항목(DB URL, Blob 토큰, 디스코드 웹훅 등)은 step을 `blocked` 처리하고 즉시 중단한다.
+- Stop 훅의 검증 빌드는 `NEXT_DIST_DIR=.next-check`로 실행한다. `npm run build`를 `.next`에 직접 돌리면 실행 중인 dev 서버가 500/무스타일로 깨진다. 여러 세션이 동시에 작업할 때는 `git worktree`로 체크아웃을 분리한다.
 
 ## 하네스 실행 규칙
 - 각 step은 `phases/<phase>/step<N>.md`에 명시된 작업만 수행하고, 요청되지 않은 기능/파일을 만들지 않는다.
