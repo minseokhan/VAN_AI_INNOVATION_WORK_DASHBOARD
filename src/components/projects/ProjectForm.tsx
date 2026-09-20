@@ -8,6 +8,7 @@ import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { useRetainOnError } from "@/components/ui/useRetainOnError";
 import { PRIORITY_LABEL, PRIORITY_ORDER } from "@/lib/projects/labels";
 import type { ProjectInput } from "@/lib/projects/validation";
 
@@ -28,9 +29,10 @@ export function ProjectForm({
   extraActions?: React.ReactNode;
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(action, {});
+  const { formRef, submit } = useRetainOnError(formAction, state);
   const errors = state.fieldErrors ?? {};
   return (
-    <form action={formAction} className="max-w-2xl space-y-4">
+    <form ref={formRef} action={submit} className="max-w-2xl space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id="code" label="과제 번호" error={errors.code}>
           <Input id="code" name="code" defaultValue={d.code} placeholder="예: 2-1" required />

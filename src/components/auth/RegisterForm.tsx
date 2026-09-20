@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { register, type FormState } from "@/app/(auth)/actions";
 import { FormField, primaryButtonClass } from "./FormField";
+import { useRetainOnError } from "@/components/ui/useRetainOnError";
 
 export function RegisterForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(register, {});
+  const { formRef, submit } = useRetainOnError(action, state);
   const errors = state.fieldErrors ?? {};
   return (
-    <form action={action} className="space-y-4">
+    <form ref={formRef} action={submit} className="space-y-4">
       <h1 className="text-base font-semibold text-slate-900">회원가입</h1>
       <FormField id="name" label="이름" autoComplete="name" error={errors.name} required />
       <FormField

@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { login, type FormState } from "@/app/(auth)/actions";
 import { FormField, primaryButtonClass } from "./FormField";
+import { useRetainOnError } from "@/components/ui/useRetainOnError";
 
 export function LoginForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(login, {});
+  const { formRef, submit } = useRetainOnError(action, state);
   return (
-    <form action={action} className="space-y-4">
+    <form ref={formRef} action={submit} className="space-y-4">
       <h1 className="text-base font-semibold text-slate-900">로그인</h1>
       {next && <input type="hidden" name="next" value={next} />}
       <FormField id="username" label="아이디" autoComplete="username" required />

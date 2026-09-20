@@ -8,6 +8,7 @@ import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { useRetainOnError } from "@/components/ui/useRetainOnError";
 import { LEVELS, LEVEL_HINT, LEVEL_LABEL, MAX_PROFILE } from "@/lib/profile/validation";
 
 function SaveRow({ state, pending, label = "저장" }: { state: FormState; pending: boolean; label?: string }) {
@@ -24,9 +25,10 @@ function SaveRow({ state, pending, label = "저장" }: { state: FormState; pendi
 
 export function AccountForm({ username, name }: { username: string; name: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateAccount, {});
+  const { formRef, submit } = useRetainOnError(action, state);
   const e = state.fieldErrors ?? {};
   return (
-    <form action={action} className="space-y-4">
+    <form ref={formRef} action={submit} className="space-y-4">
       <Field id="name" label="이름" error={e.name}>
         <Input id="name" name="name" defaultValue={name} maxLength={20} required />
       </Field>
@@ -66,9 +68,10 @@ export type ProfileValues = {
 
 export function ProfileForm({ values }: { values: ProfileValues }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateProfile, {});
+  const { formRef, submit } = useRetainOnError(action, state);
   const e = state.fieldErrors ?? {};
   return (
-    <form action={action} className="space-y-4">
+    <form ref={formRef} action={submit} className="space-y-4">
       <Field id="level" label="지금 수준" error={e.level}>
         <Select id="level" name="level" defaultValue={values.level ?? ""}>
           <option value="">선택 안 함</option>
