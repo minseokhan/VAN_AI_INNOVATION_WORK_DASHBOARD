@@ -18,6 +18,7 @@ export function ProjectForm({
   submitLabel,
   cancelHref,
   extraActions,
+  withFeatures = false,
 }: {
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   defaultValues?: Partial<ProjectInput>;
@@ -26,6 +27,8 @@ export function ProjectForm({
   cancelHref: string;
   /** 저장 버튼 오른쪽에 붙는 추가 액션 (예: 삭제) */
   extraActions?: React.ReactNode;
+  /** 생성 시에만 노출하는 초기 기능 체크리스트 입력 (편집은 상세 페이지에서 관리) */
+  withFeatures?: boolean;
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(action, {});
   const errors = state.fieldErrors ?? {};
@@ -67,6 +70,11 @@ export function ProjectForm({
       <Field id="description" label="상세 설명" error={errors.description}>
         <Textarea id="description" name="description" defaultValue={d.description} maxLength={5000} rows={8} />
       </Field>
+      {withFeatures && (
+        <Field id="features" label="기능 체크리스트 (한 줄에 하나)" error={errors.features}>
+          <Textarea id="features" name="features" rows={5} placeholder={"로그인 화면\n프로젝트 목록\n주간 보고 작성"} />
+        </Field>
+      )}
       {state.error && <p className="text-xs text-red-700">{state.error}</p>}
       <div className="flex flex-wrap items-center gap-2">
         <Link href={cancelHref} className={buttonClass({ variant: "secondary" })}>

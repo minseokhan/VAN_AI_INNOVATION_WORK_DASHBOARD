@@ -17,3 +17,13 @@ export function canTransitionStatus(from: ProjectStatus, to: ProjectStatus, memb
   if (memberCount <= 0) return false;
   return (from === "IN_PROGRESS" && to === "DONE") || (from === "DONE" && to === "IN_PROGRESS");
 }
+
+/** 줄 단위 기능 체크리스트 입력 → 기능 제목 배열. 빈 줄은 무시, 첫 오류에서 중단 */
+export function parseFeatureList(raw: string): { ok: true; titles: string[] } | { ok: false; error: string } {
+  const titles = raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  for (const t of titles) {
+    const error = validateFeatureTitle(t);
+    if (error) return { ok: false, error };
+  }
+  return { ok: true, titles };
+}

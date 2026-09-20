@@ -5,9 +5,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
+import { parseFeatureList } from "@/lib/projects/features";
 import { parseProjectForm, validateProject, type ProjectInput } from "@/lib/projects/validation";
 
-export type FormState = { error?: string; fieldErrors?: Partial<Record<keyof ProjectInput, string>> };
+export type FormState = { error?: string; fieldErrors?: Partial<Record<keyof ProjectInput | "features", string>> };
 
 const DUPLICATE_CODE: FormState = { fieldErrors: { code: "이미 사용 중인 과제 번호입니다" } };
 
@@ -20,12 +21,20 @@ function toData({ dueDate, ...v }: ProjectInput) {
 }
 
 export async function createProject(_prev: FormState, fd: FormData): Promise<FormState> {
-  await requireAdmin();
+  const user = await requireAdmin();
   const r = validateProject(parseProjectForm(fd));
   if (!r.ok) return { fieldErrors: r.errors };
+  const features = parseFeatureList(String(fd.get("features") ?? ""));
+  if (!features.ok) return { fieldErrors: { features: features.error } };
   let id: string;
   try {
-    ({ id } = await db.project.create({ data: toData(r.value), select: { id: true } }));
+    ({ id } = await db.project.create({
+      data: {
+        ...toData(r.value),
+        features: { create: features.titles.map((title, order) => ({ title, order, createdById: user.id })) },
+      },
+      select: { id: true },
+    }));
   } catch (e) {
     if (isUniqueViolation(e)) return DUPLICATE_CODE;
     throw e;

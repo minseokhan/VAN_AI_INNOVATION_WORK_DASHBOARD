@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canTransitionStatus, nextOrder, validateFeatureTitle } from "./features";
+import { canTransitionStatus, nextOrder, parseFeatureList, validateFeatureTitle } from "./features";
 
 describe("nextOrder", () => {
   it("빈 배열 → 0", () => {
@@ -41,5 +41,22 @@ describe("canTransitionStatus", () => {
   });
   it("같은 상태로는 불가", () => {
     expect(canTransitionStatus("DONE", "DONE", 1)).toBe(false);
+  });
+});
+
+describe("parseFeatureList", () => {
+  it("줄 단위로 나누고 공백 줄은 버린다", () => {
+    expect(parseFeatureList("로그인\n\n  회원가입  \n")).toEqual({ ok: true, titles: ["로그인", "회원가입"] });
+  });
+  it("빈 입력이면 빈 배열", () => {
+    expect(parseFeatureList("   \n\n")).toEqual({ ok: true, titles: [] });
+  });
+  it("CRLF 도 처리한다", () => {
+    expect(parseFeatureList("a\r\nb")).toEqual({ ok: true, titles: ["a", "b"] });
+  });
+  it("120자 초과 줄이 있으면 에러", () => {
+    const r = parseFeatureList(`정상\n${"x".repeat(121)}`);
+    expect(r.ok).toBe(false);
+    expect(r.ok === false && r.error).toMatch(/120/);
   });
 });
