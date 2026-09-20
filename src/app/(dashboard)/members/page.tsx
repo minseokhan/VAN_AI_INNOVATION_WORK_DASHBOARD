@@ -18,7 +18,7 @@ export default async function MembersPage() {
   const users = await db.user.findMany({
     orderBy: { createdAt: "asc" },
     select: {
-      id: true, username: true, name: true, role: true, approved: true, createdAt: true,
+      id: true, username: true, name: true, role: true, approved: true, createdAt: true, level: true,
       _count: { select: { memberships: true } },
     },
   });
@@ -41,6 +41,7 @@ export default async function MembersPage() {
                   <th className={th}>이름</th>
                   <th className={th}>아이디</th>
                   <th className={th}>역할</th>
+                  <th className={th}>수준</th>
                   <th className={th}>참여 프로젝트</th>
                   <th className={th}>액션</th>
                 </tr>
