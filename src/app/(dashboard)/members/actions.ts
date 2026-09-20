@@ -1,9 +1,12 @@
 "use server";
 
+import type { SkillLevel } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
 import { canChangeRole, canRemoveUser } from "@/lib/members/rules";
+import { LEVELS } from "@/lib/profile/validation";
+import { calcProgress } from "@/lib/projects/progress";
 
 const NOT_FOUND = { error: "사용자를 찾을 수 없습니다" };
 
@@ -44,6 +47,47 @@ export async function setRole(userId: string, role: "ADMIN" | "MEMBER"): Promise
   if (!r.ok) return { error: r.reason };
   // 부원으로 내리면 운영진 구분 라벨도 제거
   await db.user.update({ where: { id: userId }, data: role === "ADMIN" ? { role } : { role, adminType: null } });
+  revalidate();
+  return {};
+}
+
+export type MemberDetail = NonNullable<Awaited<ReturnType<typeof getMemberDetail>>>;
+
+/** 상세 패널이 열릴 때만 읽는다 — 목록 쿼리에 프로필·기능까지 싣지 않기 위해 분리 */
+export async function getMemberDetail(userId: string) {
+  await requireAdmin();
+  const u = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true, username: true, name: true, role: true, createdAt: true,
+      level: true, tools: true, skills: true, interests: true, bio: true,
+      profileLinks: { orderBy: { createdAt: "desc" }, select: { id: true, kind: true, title: true, url: true, createdAt: true } },
+      memberships: {
+        orderBy: { assignedAt: "desc" },
+        select: {
+          position: true,
+          project: { select: { id: true, code: true, title: true, status: true, features: { select: { done: true } } } },
+        },
+      },
+    },
+  });
+  if (!u) return null;
+  const { memberships, ...rest } = u;
+  return {
+    ...rest,
+    projects: memberships.map(({ position, project: { features, ...p } }) => ({
+      ...p,
+      position,
+      progress: calcProgress(features),
+    })),
+  };
+}
+
+export async function setMemberLevel(userId: string, level: string): Promise<{ error?: string }> {
+  await requireAdmin();
+  if (level && !(LEVELS as readonly string[]).includes(level)) return { error: "수준 값이 올바르지 않습니다" };
+  const { count } = await db.user.updateMany({ where: { id: userId }, data: { level: (level || null) as SkillLevel | null } });
+  if (count === 0) return NOT_FOUND;
   revalidate();
   return {};
 }

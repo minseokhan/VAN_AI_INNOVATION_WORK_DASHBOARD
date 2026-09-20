@@ -55,6 +55,7 @@ model User {
 
   // 역량 프로필 (본인이 /settings에서 작성, 운영진이 열람)
   level     SkillLevel?
+  tools     String?
   skills    String?
   interests String?
   bio       String?

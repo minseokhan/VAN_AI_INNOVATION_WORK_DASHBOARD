@@ -59,6 +59,7 @@ export function PasswordForm() {
 
 export type ProfileValues = {
   level: SkillLevel | null;
+  tools: string | null;
   skills: string | null;
   interests: string | null;
   bio: string | null;
@@ -78,6 +79,15 @@ export function ProfileForm({ values }: { values: ProfileValues }) {
             </option>
           ))}
         </Select>
+      </Field>
+      <Field id="tools" label={`주요 사용 언어 · 툴/도구 (${MAX_PROFILE.tools}자 이하)`} error={e.tools}>
+        <Input
+          id="tools"
+          name="tools"
+          defaultValue={values.tools ?? ""}
+          maxLength={MAX_PROFILE.tools}
+          placeholder="예) Python, TypeScript / React, FastAPI, Figma, Git"
+        />
       </Field>
       <Field id="skills" label={`구현할 수 있는 것 (${MAX_PROFILE.skills}자 이하)`} error={e.skills}>
         <Textarea

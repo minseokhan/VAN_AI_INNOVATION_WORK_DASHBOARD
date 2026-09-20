@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils/date";
 
 export type ProfileViewData = {
   level: SkillLevel | null;
+  tools: string | null;
   skills: string | null;
   interests: string | null;
   bio: string | null;
@@ -36,6 +37,9 @@ export function ProfileView({ data }: { data: ProfileViewData }) {
         ) : (
           EMPTY
         )}
+      </Block>
+      <Block title="주요 사용 언어 · 툴/도구">
+        {data.tools ? <p className="text-sm leading-relaxed text-slate-700">{data.tools}</p> : EMPTY}
       </Block>
       <Block title="구현할 수 있는 것">
         {data.skills ? <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{data.skills}</p> : EMPTY}

@@ -22,6 +22,15 @@ body {
   }
 }
 
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 /* 브라우저 "PDF로 저장"용 — 네비·툴바를 빼고 본문만 인쇄한다 */
 @media print {
   .no-print {

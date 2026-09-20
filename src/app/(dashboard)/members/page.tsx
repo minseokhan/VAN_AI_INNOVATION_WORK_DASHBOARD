@@ -1,11 +1,10 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
-import { MemberRow, PendingCard } from "@/components/members/MemberRow";
+import { PendingCard } from "@/components/members/MemberRow";
+import { MembersTable } from "@/components/members/MembersTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
-
-const th = "px-3 py-2 text-left text-xs font-medium text-slate-600";
 
 export default async function MembersPage() {
   let me;
@@ -19,7 +18,7 @@ export default async function MembersPage() {
     orderBy: { createdAt: "asc" },
     select: {
       id: true, username: true, name: true, role: true, approved: true, createdAt: true, level: true,
-      _count: { select: { memberships: true } },
+      memberships: { select: { project: { select: { code: true } } }, orderBy: { project: { code: "asc" } } },
     },
   });
   const pending = users.filter((u) => !u.approved);
@@ -34,30 +33,11 @@ export default async function MembersPage() {
         {members.length === 0 ? (
           <EmptyState message="승인된 멤버가 없습니다" />
         ) : (
-          <div className="overflow-x-auto rounded-md border border-slate-200">
-            <table className="w-full min-w-[640px]">
-              <thead className="bg-navy-50">
-                <tr>
-                  <th className={th}>이름</th>
-                  <th className={th}>아이디</th>
-                  <th className={th}>역할</th>
-                  <th className={th}>수준</th>
-                  <th className={th}>참여 프로젝트</th>
-                  <th className={th}>액션</th>
-                </tr>
-              </thead>
-              <tbody>
-                {members.map((u) => (
-                  <MemberRow
-                    key={u.id}
-                    user={{ ...u, projectCount: u._count.memberships }}
-                    isSelf={u.id === me.id}
-                    adminCount={adminCount}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <MembersTable
+            members={members.map(({ memberships, ...u }) => ({ ...u, projectCodes: memberships.map((m) => m.project.code) }))}
+            meId={me.id}
+            adminCount={adminCount}
+          />
         )}
       </section>
       <section>
