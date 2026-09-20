@@ -1,7 +1,8 @@
 "use client";
 
+import { Plus, X } from "lucide-react";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { FormState } from "@/app/(dashboard)/projects/actions";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
@@ -70,11 +71,7 @@ export function ProjectForm({
       <Field id="description" label="상세 설명" error={errors.description}>
         <Textarea id="description" name="description" defaultValue={d.description} maxLength={5000} rows={8} />
       </Field>
-      {withFeatures && (
-        <Field id="features" label="기능 체크리스트 (한 줄에 하나)" error={errors.features}>
-          <Textarea id="features" name="features" rows={5} placeholder={"로그인 화면\n프로젝트 목록\n주간 보고 작성"} />
-        </Field>
-      )}
+      {withFeatures && <FeatureListInput error={errors.features} />}
       {state.error && <p className="text-xs text-red-700">{state.error}</p>}
       <div className="flex flex-wrap items-center gap-2">
         <Link href={cancelHref} className={buttonClass({ variant: "secondary" })}>
@@ -86,5 +83,60 @@ export function ProjectForm({
         {extraActions}
       </div>
     </form>
+  );
+}
+
+/** 생성 시 기능을 하나씩 추가하는 입력. 추가된 항목은 hidden input 으로 함께 전송된다 */
+function FeatureListInput({ error }: { error?: string }) {
+  const [items, setItems] = useState<string[]>([]);
+  const [draft, setDraft] = useState("");
+
+  const add = () => {
+    const t = draft.trim();
+    if (!t) return;
+    setItems([...items, t]);
+    setDraft("");
+  };
+
+  return (
+    <Field id="feature-draft" label="기능 체크리스트" error={error}>
+      {items.length > 0 && (
+        <ul className="mb-2 space-y-1">
+          {items.map((t, i) => (
+            <li key={`${t}-${i}`} className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5">
+              <input type="hidden" name="features" value={t} />
+              <span className="flex-1 text-sm text-slate-700">{t}</span>
+              <button
+                type="button"
+                aria-label={`${t} 제거`}
+                onClick={() => setItems(items.filter((_, j) => j !== i))}
+                className="text-slate-400 transition-colors hover:text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-500"
+              >
+                <X size={14} strokeWidth={2} aria-hidden />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="flex gap-2">
+        <Input
+          id="feature-draft"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault(); // 폼 제출 대신 항목 추가
+              add();
+            }
+          }}
+          maxLength={120}
+          placeholder="예: 로그인 화면"
+        />
+        <Button type="button" variant="secondary" onClick={add} disabled={!draft.trim()} className="shrink-0" aria-label="기능 추가">
+          <Plus size={16} strokeWidth={2} aria-hidden />
+          추가
+        </Button>
+      </div>
+    </Field>
   );
 }

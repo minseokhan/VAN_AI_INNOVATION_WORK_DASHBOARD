@@ -45,17 +45,18 @@ describe("canTransitionStatus", () => {
 });
 
 describe("parseFeatureList", () => {
-  it("줄 단위로 나누고 공백 줄은 버린다", () => {
-    expect(parseFeatureList("로그인\n\n  회원가입  \n")).toEqual({ ok: true, titles: ["로그인", "회원가입"] });
+  it("항목마다 trim 하고 빈 항목은 버린다", () => {
+    expect(parseFeatureList(["로그인", "", "  회원가입  "])).toEqual({ ok: true, titles: ["로그인", "회원가입"] });
   });
-  it("빈 입력이면 빈 배열", () => {
-    expect(parseFeatureList("   \n\n")).toEqual({ ok: true, titles: [] });
+  it("입력이 없으면 빈 배열", () => {
+    expect(parseFeatureList([])).toEqual({ ok: true, titles: [] });
+    expect(parseFeatureList(["  "])).toEqual({ ok: true, titles: [] });
   });
-  it("CRLF 도 처리한다", () => {
-    expect(parseFeatureList("a\r\nb")).toEqual({ ok: true, titles: ["a", "b"] });
+  it("입력 순서를 유지한다", () => {
+    expect(parseFeatureList(["c", "a", "b"])).toEqual({ ok: true, titles: ["c", "a", "b"] });
   });
-  it("120자 초과 줄이 있으면 에러", () => {
-    const r = parseFeatureList(`정상\n${"x".repeat(121)}`);
+  it("120자 초과 항목이 있으면 에러", () => {
+    const r = parseFeatureList(["정상", "x".repeat(121)]);
     expect(r.ok).toBe(false);
     expect(r.ok === false && r.error).toMatch(/120/);
   });

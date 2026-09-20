@@ -24,7 +24,7 @@ export async function createProject(_prev: FormState, fd: FormData): Promise<For
   const user = await requireAdmin();
   const r = validateProject(parseProjectForm(fd));
   if (!r.ok) return { fieldErrors: r.errors };
-  const features = parseFeatureList(String(fd.get("features") ?? ""));
+  const features = parseFeatureList(fd.getAll("features").map(String));
   if (!features.ok) return { fieldErrors: { features: features.error } };
   let id: string;
   try {
