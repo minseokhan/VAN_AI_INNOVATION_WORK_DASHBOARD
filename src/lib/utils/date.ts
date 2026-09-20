@@ -17,3 +17,12 @@ export function relativeDays(d: Date | string, now: Date = new Date()): string {
   if (diff === 0) return "오늘";
   return diff > 0 ? `${diff}일 전` : `${-diff}일 후`;
 }
+
+/** "9/15 14:20" — KST 기준 날짜+시각 */
+export function formatDateTime(d: Date | string): string {
+  const [date, time] = new Date(d)
+    .toLocaleString("sv-SE", { timeZone: TZ, hour12: false })
+    .split(" ");
+  const [, m, day] = date.split("-");
+  return `${Number(m)}/${Number(day)} ${time.slice(0, 5)}`;
+}
