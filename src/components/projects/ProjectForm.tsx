@@ -125,7 +125,8 @@ function FeatureListInput({ error }: { error?: string }) {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            // isComposing: 한글 조합을 확정하는 Enter 는 항목 추가가 아니다 (중복 추가 방지)
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
               e.preventDefault(); // 폼 제출 대신 항목 추가
               add();
             }
