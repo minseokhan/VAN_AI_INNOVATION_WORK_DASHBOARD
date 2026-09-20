@@ -60,14 +60,11 @@ export async function getMemberDetail(userId: string) {
     where: { id: userId },
     select: {
       id: true, username: true, name: true, role: true, createdAt: true,
-      level: true, tools: true, skills: true, interests: true, bio: true,
+      level: true, adminLevel: true, tools: true, skills: true, interests: true, bio: true,
       profileLinks: { orderBy: { createdAt: "desc" }, select: { id: true, kind: true, title: true, url: true, createdAt: true } },
       memberships: {
         orderBy: { assignedAt: "desc" },
-        select: {
-          position: true,
-          project: { select: { id: true, code: true, title: true, status: true, features: { select: { done: true } } } },
-        },
+        select: { project: { select: { id: true, code: true, title: true, status: true, features: { select: { done: true } } } } },
       },
     },
   });
@@ -75,18 +72,15 @@ export async function getMemberDetail(userId: string) {
   const { memberships, ...rest } = u;
   return {
     ...rest,
-    projects: memberships.map(({ position, project: { features, ...p } }) => ({
-      ...p,
-      position,
-      progress: calcProgress(features),
-    })),
+    projects: memberships.map(({ project: { features, ...p } }) => ({ ...p, progress: calcProgress(features) })),
   };
 }
 
+/** 운영진이 판단한 수준. 본인이 쓰는 level 과 다른 컬럼이라 서로 덮지 않는다 */
 export async function setMemberLevel(userId: string, level: string): Promise<{ error?: string }> {
   await requireAdmin();
   if (level && !(LEVELS as readonly string[]).includes(level)) return { error: "수준 값이 올바르지 않습니다" };
-  const { count } = await db.user.updateMany({ where: { id: userId }, data: { level: (level || null) as SkillLevel | null } });
+  const { count } = await db.user.updateMany({ where: { id: userId }, data: { adminLevel: (level || null) as SkillLevel | null } });
   if (count === 0) return NOT_FOUND;
   revalidate();
   return {};

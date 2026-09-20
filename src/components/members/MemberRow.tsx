@@ -14,7 +14,10 @@ export type Member = {
   username: string;
   name: string;
   role: "ADMIN" | "MEMBER";
+  /** 본인이 쓴 자기평가 */
   level: keyof typeof LEVEL_LABEL | null;
+  /** 운영진이 판단해 지정한 수준. 있으면 이쪽이 표에 보인다 */
+  adminLevel: keyof typeof LEVEL_LABEL | null;
   createdAt: Date;
   /** 배치된 프로젝트의 과제 번호 (예: ["4-4", "6-2"]) */
   projectCodes: string[];
@@ -79,7 +82,13 @@ export function MemberRow({ user, isSelf, onOpen }: { user: Member; isSelf: bool
         <Badge tone={isAdmin ? "navy" : "neutral"}>{isAdmin ? "운영진" : "부원"}</Badge>
       </td>
       <td className="px-3 py-2 text-sm text-slate-700">
-        {user.level ? LEVEL_LABEL[user.level] : <span className="text-slate-400">미작성</span>}
+        {user.adminLevel ? (
+          <Badge tone="navy">{LEVEL_LABEL[user.adminLevel]}</Badge>
+        ) : user.level ? (
+          LEVEL_LABEL[user.level]
+        ) : (
+          <span className="text-slate-400">미작성</span>
+        )}
       </td>
       <td className="px-3 py-2 text-sm text-slate-700">
         <span className="tabular-nums">{user.projectCodes.length}</span>

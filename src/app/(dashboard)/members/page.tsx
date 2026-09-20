@@ -17,7 +17,7 @@ export default async function MembersPage() {
   const users = await db.user.findMany({
     orderBy: { createdAt: "asc" },
     select: {
-      id: true, username: true, name: true, role: true, approved: true, createdAt: true, level: true,
+      id: true, username: true, name: true, role: true, approved: true, createdAt: true, level: true, adminLevel: true,
       memberships: { select: { project: { select: { code: true } } }, orderBy: { project: { code: "asc" } } },
     },
   });

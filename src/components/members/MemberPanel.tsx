@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { getMemberDetail, setMemberLevel, setRole, type MemberDetail } from "@/app/(dashboard)/members/actions";
 import { ProfileView } from "@/components/settings/ProfileView";
 import { Avatar } from "@/components/ui/Avatar";
@@ -32,12 +32,19 @@ export function MemberPanel({
   const [missing, setMissing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(() => {
-    getMemberDetail(userId).then((d) => {
-      setDetail(d);
-      setMissing(d === null);
-    });
+    getMemberDetail(userId)
+      .then((d) => {
+        setDetail(d);
+        setMissing(d === null);
+      })
+      // 다른 운영진이 내 권한을 내렸으면 requireAdmin 이 throw 한다 — 로딩 상태로 굳지 않게 받는다
+      .catch(() => {
+        setMissing(true);
+        setError("권한이 없거나 불러오지 못했습니다");
+      });
   }, [userId]);
 
   useEffect(() => {
@@ -52,9 +59,22 @@ export function MemberPanel({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  // 포커스가 뒤 표에 남아 있으면 Tab·Enter 가 가려진 행을 건드린다
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    return () => opener?.focus();
+  }, []);
+
   const run = (fn: () => Promise<{ error?: string }>) =>
     startSaving(async () => {
-      const res = await fn();
+      let res: { error?: string };
+      try {
+        res = await fn();
+      } catch {
+        setError("권한이 없거나 저장하지 못했습니다"); // 던져진 에러가 에러 바운더리로 올라가지 않게
+        return;
+      }
       setError(res.error ?? null);
       if (!res.error) {
         load();
@@ -68,7 +88,11 @@ export function MemberPanel({
   return (
     <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label="멤버 상세">
       <button type="button" aria-label="닫기" onClick={onClose} className="absolute inset-0 cursor-default bg-slate-900/20" />
-      <div className="absolute inset-y-0 right-0 flex w-full max-w-md animate-[slide-in-right_200ms_ease-out] flex-col border-l border-slate-200 bg-white shadow-xl">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="absolute inset-y-0 right-0 flex w-full max-w-md animate-[slide-in-right_200ms_ease-out] flex-col border-l border-slate-200 bg-white shadow-xl outline-none"
+      >
         <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4">
           {detail ? (
             <>
@@ -82,7 +106,7 @@ export function MemberPanel({
               <Badge tone={isAdmin ? "navy" : "neutral"}>{isAdmin ? "운영진" : "부원"}</Badge>
             </>
           ) : (
-            <p className="flex-1 text-sm text-slate-500">{missing ? "삭제된 멤버입니다" : "불러오는 중…"}</p>
+            <p className="flex-1 text-sm text-slate-500">{missing ? (error ?? "삭제된 멤버입니다") : "불러오는 중…"}</p>
           )}
           <Button variant="secondary" size="sm" onClick={onClose}>
             닫기
@@ -112,11 +136,11 @@ export function MemberPanel({
                   {isSelf && <span className="text-xs text-slate-500">본인 계정입니다</span>}
                 </div>
                 <label htmlFor="panel-level" className="block text-xs font-medium text-slate-600">
-                  수준 (운영진 판단)
+                  수준 (운영진 판단 — 아래 본인 자기평가와 별도로 기록됩니다)
                 </label>
                 <Select
                   id="panel-level"
-                  value={detail.level ?? ""}
+                  value={detail.adminLevel ?? ""}
                   disabled={saving}
                   onChange={(e) => run(() => setMemberLevel(detail.id, e.target.value))}
                 >
