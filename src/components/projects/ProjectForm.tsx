@@ -121,6 +121,7 @@ function FeatureListInput({ error }: { error?: string }) {
       <div className="flex gap-2">
         <Input
           id="feature-draft"
+          name="features" // +를 누르지 않고 제출해도 입력 중이던 한 줄은 저장된다
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
