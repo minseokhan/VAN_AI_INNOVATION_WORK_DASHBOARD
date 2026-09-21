@@ -1,0 +1,21 @@
+{
+  "project": "VAN AI 혁신부 업무 대시보드",
+  "phase": "4-members",
+  "steps": [
+    {
+      "step": 0,
+      "name": "members-admin",
+      "status": "completed",
+      "linear": "V-17",
+      "summary": "src/lib/members/rules.ts(canChangeRole/canRemoveUser)+테스트 9건, members/actions.ts(approveUser/rejectUser/setRole/setAdminType, 첫 줄 requireAdmin), members/page.tsx(승인 대기 amber 섹션+멤버 테이블), components/members/MemberRow.tsx(PendingRow/MemberRow), components/ui/ConfirmButton.tsx 추출(DeleteProjectButton 삭제·edit 페이지 교체). 강등 시 adminType null 처리."
+    },
+    {
+      "step": 1,
+      "name": "assign-board",
+      "status": "completed",
+      "linear": "V-18",
+      "summary": "src/lib/projects/status.ts(deriveStatusAfterAssign)+테스트 4건, assign/actions.ts(assignMember/unassignMember/setPosition, requireAdmin, $transaction+syncStatus로 상태 자동 전이·startedAt 설정, 미승인 배치 거부), assign/page.tsx(승인 멤버+프로젝트 조회, showDone 토글), components/assign/{AssignBoard,MemberCard,ProjectDropColumn}.tsx(@dnd-kit/core, useOptimistic 낙관 반영, DragOverlay dropAnimation 200ms, ring 하이라이트, Pointer/Keyboard 센서), 상세 팀 섹션 ADMIN 배치 보드 링크."
+    }
+  ],
+  "linear": "V-5"
+}

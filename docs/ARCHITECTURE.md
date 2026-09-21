@@ -4,7 +4,8 @@
 ```
 prisma/
 ├── schema.prisma          # 데이터 모델
-└── seed.ts                # 운영진 계정 + 20개 프로젝트 시드
+├── seed-projects.json     # docx에서 추출한 21개 과제 (제목·분야·우선순위·기능 목록)
+└── seed.ts                # 운영진 계정 + seed-projects.json 적재
 src/
 ├── app/
 │   ├── (auth)/login, register     # 인증 페이지 (레이아웃 없음)
@@ -38,7 +39,8 @@ src/
 ```
 User          id, username(unique), passwordHash, name, role(ADMIN|MEMBER),
               adminType(PLANNING|DEV|null), approved(bool), createdAt
-Project       id, title, summary, description, status(UNASSIGNED|IN_PROGRESS|DONE),
+Project       id, code(unique, 예 "2-1"), category, priority(上|中上|中|中下|下|중장기), dueDate?,
+              title, summary, description, status(UNASSIGNED|IN_PROGRESS|DONE),
               githubUrl?, deployUrl?, mainLanguage?, infraNote?, startedAt?, createdAt, updatedAt
 ProjectMember projectId, userId, position(FE|BE|AI|PM|ETC), assignedAt   @@id([projectId,userId])
 Feature       id, projectId, title, done(bool), order, createdById, createdAt

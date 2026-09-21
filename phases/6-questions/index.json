@@ -1,0 +1,21 @@
+{
+  "project": "VAN AI 혁신부 업무 대시보드",
+  "phase": "6-questions",
+  "steps": [
+    {
+      "step": 0,
+      "name": "questions-page",
+      "status": "completed",
+      "linear": "V-21",
+      "summary": "src/lib/questions/rules.ts(validateQuestion/validateAnswer/canAskFor/canDeleteQuestion/filterQuestions)+테스트 15건. questions/actions.ts(askQuestion/answerQuestion/deleteQuestion). questions/page.tsx(scope·project 쿼리, Link 세그먼트 + 미답변 amber 배지). components/questions/{QuestionForm,QuestionCard}.tsx. 상세 질문 섹션에 canEdit용 '질문하기' 링크"
+    },
+    {
+      "step": 1,
+      "name": "discord-digest",
+      "status": "completed",
+      "linear": "V-22",
+      "summary": "src/lib/discord/{digest,webhook,run}.ts(buildDigestMessages 2000자 그룹/줄 분할, sendWebhook allowed_mentions+500ms 순차, runDigest 성공 후 sentToDiscordAt) + 테스트 17건. api/cron/digest/route.ts(Bearer CRON_SECRET, 미설정 401). sendDigestNow 액션 + components/questions/DigestButton.tsx(ADMIN 전용, PageHeader actions). .env.example APP_BASE_URL 추가(.gitignore에 !.env.example 예외). 환경변수 DISCORD_WEBHOOK_URL/DISCORD_PLANNER_ROLE_ID/CRON_SECRET 없음 → 실제 전송 미검증"
+    }
+  ],
+  "linear": "V-7"
+}

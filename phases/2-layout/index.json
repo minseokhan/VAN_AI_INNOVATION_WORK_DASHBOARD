@@ -1,0 +1,21 @@
+{
+  "project": "VAN AI 혁신부 업무 대시보드",
+  "phase": "2-layout",
+  "steps": [
+    {
+      "step": 0,
+      "name": "ui-kit",
+      "status": "completed",
+      "linear": "V-12",
+      "summary": "src/lib/utils/{cn,initials,date}.ts + src/lib/projects/labels.ts (TDD 4파일 17건), src/components/ui/ 12개(Button/Badge/Card/Input/Textarea/Select/Field/ProgressBar/Avatar/AvatarGroup/EmptyState/PageHeader), page.tsx 임시 쇼케이스. 날짜는 KST 고정, BadgeTone은 Badge.tsx에서 type export"
+    },
+    {
+      "step": 1,
+      "name": "dashboard-shell",
+      "status": "completed",
+      "linear": "V-13",
+      "summary": "src/app/(dashboard)/{layout,page}.tsx + questions/assign/members/projects/new 자리표시 페이지(ADMIN 페이지는 FORBIDDEN만 잡아 / 로 redirect, NEXT_REDIRECT는 전파), src/components/layout/{Sidebar,MobileHeader}.tsx, globals.css fade-in keyframe. src/app/page.tsx 삭제(라우트 그룹 이동)"
+    }
+  ],
+  "linear": "V-3"
+}

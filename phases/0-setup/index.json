@@ -1,0 +1,21 @@
+{
+  "project": "VAN AI 혁신부 업무 대시보드",
+  "phase": "0-setup",
+  "steps": [
+    {
+      "step": 0,
+      "name": "project-setup",
+      "status": "completed",
+      "linear": "V-8",
+      "summary": "Next.js 15.5 + React 19 + Tailwind v4 + TS 스캐폴드(src/), vitest.config.ts, test/prisma.seed 스크립트, globals.css @theme navy 토큰 5종 + Pretendard, layout.tsx(ko, CDN 폰트), .env.example, vercel.json cron, 의존성(@prisma/client@6 bcryptjs jose lucide-react @dnd-kit/core @dnd-kit/utilities @vercel/blob / prisma@6 vitest tsx @types/bcryptjs @types/node@22) 설치. lint/build/test 통과."
+    },
+    {
+      "step": 1,
+      "name": "db-schema",
+      "status": "completed",
+      "linear": "V-9",
+      "summary": "prisma/schema.prisma(enum 5종 + User/Project/ProjectMember/Feature/WeeklyUpdate/PlanDoc/Question, Cascade/SetNull 관계), src/lib/db.ts PrismaClient 싱글턴, prisma/seed.ts 멱등 시드(운영진 upsert + code 기준 Project upsert, Feature는 0개일 때만 생성). DATABASE_URL 없어 migrate diff로 prisma/migrations/0001_init/migration.sql + migration_lock.toml 생성, 시드 미실행(실 DB 적용은 prisma migrate deploy + db seed 필요)."
+    }
+  ],
+  "linear": "V-1"
+}

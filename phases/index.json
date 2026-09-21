@@ -1,0 +1,32 @@
+{
+  "phases": [
+    {
+      "dir": "0-setup",
+      "status": "completed"
+    },
+    {
+      "dir": "1-auth",
+      "status": "completed"
+    },
+    {
+      "dir": "2-layout",
+      "status": "completed"
+    },
+    {
+      "dir": "3-projects",
+      "status": "completed"
+    },
+    {
+      "dir": "4-members",
+      "status": "completed"
+    },
+    {
+      "dir": "5-progress",
+      "status": "completed"
+    },
+    {
+      "dir": "6-questions",
+      "status": "completed"
+    }
+  ]
+}
