@@ -43,9 +43,9 @@ describe("runDigest", () => {
     expect(updateMany).not.toHaveBeenCalled();
   });
 
-  it("sentToDiscordAt null만 조회 → 전송 → 성공 후 sentToDiscordAt 기록", async () => {
+  it("미발송 공개 질문만 조회 → 전송 → 성공 후 sentToDiscordAt 기록", async () => {
     expect(await runDigest(now)).toEqual({ sent: 1 });
-    expect(findMany.mock.calls[0][0].where).toEqual({ sentToDiscordAt: null });
+    expect(findMany.mock.calls[0][0].where).toEqual({ sentToDiscordAt: null, isPrivate: false });
     const [url, messages, roleId] = sendWebhook.mock.calls[0];
     expect(url).toBe("https://discord.com/api/webhooks/x");
     expect(messages[0]).toContain("<@&R1>");

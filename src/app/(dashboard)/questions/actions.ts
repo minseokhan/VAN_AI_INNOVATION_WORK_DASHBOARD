@@ -26,7 +26,9 @@ export async function askQuestion(_prev: FormState, fd: FormData): Promise<FormS
   }
   const error = validateQuestion(content);
   if (error) return { fieldErrors: { content: error } };
-  await db.question.create({ data: { projectId, authorId: user.id, content: content.trim() } });
+  await db.question.create({
+    data: { projectId, authorId: user.id, content: content.trim(), isPrivate: fd.get("visibility") === "PRIVATE" },
+  });
   revalidate(projectId);
   return {};
 }

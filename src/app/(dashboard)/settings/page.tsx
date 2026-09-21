@@ -36,12 +36,14 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="개인 설정" />
-      <Section title="계정">
-        <AccountForm username={user.username} name={user.name} />
-      </Section>
-      <Section title="비밀번호 변경">
-        <PasswordForm />
-      </Section>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Section title="계정">
+          <AccountForm username={user.username} name={user.name} />
+        </Section>
+        <Section title="비밀번호 변경">
+          <PasswordForm />
+        </Section>
+      </div>
       <Section
         title="역량 프로필"
         description="운영진이 프로젝트를 배치할 때 참고합니다. 부족한 부분도 솔직하게 적어 주세요."

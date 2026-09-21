@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { canAskFor, canDeleteQuestion, filterQuestions, validateAnswer, validateQuestion } from "./rules";
+import {
+  canAskFor,
+  canDeleteQuestion,
+  canViewQuestionContent,
+  filterQuestions,
+  maskQuestion,
+  validateAnswer,
+  validateQuestion,
+} from "./rules";
 
 const member = { id: "u1", role: "MEMBER" };
 const admin = { id: "a1", role: "ADMIN" };
@@ -74,5 +82,37 @@ describe("filterQuestions", () => {
   it("project가 있으면 해당 프로젝트로 추가 제한", () => {
     expect(ids(filterQuestions(qs, { scope: "ALL", project: "p2" }, "u1"))).toEqual(["q2", "q3"]);
     expect(ids(filterQuestions(qs, { scope: "UNANSWERED", project: "p2" }, "u1"))).toEqual(["q3"]);
+  });
+});
+
+describe("canViewQuestionContent", () => {
+  const q = { authorId: "u1", isPrivate: true };
+
+  it("공개 질문은 누구나 볼 수 있다", () => {
+    expect(canViewQuestionContent({ id: "u9", role: "MEMBER" }, { authorId: "u1", isPrivate: false })).toBe(true);
+  });
+  it("비공개 질문은 작성자 본인만", () => {
+    expect(canViewQuestionContent(member, q)).toBe(true);
+    expect(canViewQuestionContent({ id: "u9", role: "MEMBER" }, q)).toBe(false);
+  });
+  it("운영진은 비공개 질문도 볼 수 있다", () => {
+    expect(canViewQuestionContent(admin, q)).toBe(true);
+  });
+});
+
+describe("maskQuestion", () => {
+  const base = { id: "q1", authorId: "u1", isPrivate: true, content: "비밀 질문", answer: "비밀 답변", authorName: "김부원" };
+
+  it("볼 수 있으면 원본 그대로에 masked: false", () => {
+    expect(maskQuestion(base, true)).toEqual({ ...base, masked: false });
+  });
+
+  it("볼 수 없으면 본문·답변·작성자를 지운다", () => {
+    const m = maskQuestion(base, false);
+    expect(m.masked).toBe(true);
+    expect(m.content).toBe("");
+    expect(m.answer).toBeNull();
+    expect(m.authorName).toBe("");
+    expect(m.id).toBe("q1");
   });
 });

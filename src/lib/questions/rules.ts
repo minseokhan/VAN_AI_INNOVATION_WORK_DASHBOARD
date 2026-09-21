@@ -39,3 +39,20 @@ export function filterQuestions<
     return true;
   });
 }
+
+/** 비공개 질문은 작성자 본인과 운영진만 내용을 볼 수 있다 */
+export function canViewQuestionContent(
+  user: { id: string; role: string },
+  q: { authorId: string; isPrivate: boolean },
+): boolean {
+  return !q.isPrivate || isAdmin(user) || q.authorId === user.id;
+}
+
+/** 볼 수 없는 질문은 본문·답변·작성자를 서버에서 지운 뒤 내려보낸다 (블러는 표시용일 뿐 가림이 아니다) */
+export function maskQuestion<T extends { content: string; answer: string | null; authorName: string }>(
+  q: T,
+  canView: boolean,
+): T & { masked: boolean } {
+  if (canView) return { ...q, masked: false };
+  return { ...q, content: "", answer: null, authorName: "", masked: true };
+}
