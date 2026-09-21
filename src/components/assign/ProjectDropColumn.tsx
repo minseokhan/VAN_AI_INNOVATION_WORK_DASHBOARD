@@ -2,7 +2,7 @@
 
 import { useDroppable } from "@dnd-kit/core";
 import type { Position, ProjectStatus } from "@prisma/client";
-import { X } from "lucide-react";
+import { Crown, X } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
@@ -14,7 +14,7 @@ export type BoardProject = {
   code: string;
   title: string;
   status: ProjectStatus;
-  members: { userId: string; name: string; position: Position }[];
+  members: { userId: string; name: string; position: Position; isLead: boolean }[];
 };
 
 export function ProjectDropColumn({
@@ -22,17 +22,23 @@ export function ProjectDropColumn({
   error,
   onRemove,
   onPosition,
+  onLead,
 }: {
   project: BoardProject;
   error?: string;
   onRemove: (userId: string) => void;
   onPosition: (userId: string, position: Position) => void;
+  onLead: (userId: string, isLead: boolean) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: project.id });
+  const members = [...project.members].sort((a, b) => Number(b.isLead) - Number(a.isLead));
   return (
     <div
       ref={setNodeRef}
-      className={cn("flex flex-col rounded-md border border-slate-200 bg-white p-4 transition-colors", isOver && "ring-2 ring-navy-500 bg-navy-50")}
+      className={cn(
+        "flex flex-col rounded-md border border-slate-200 bg-white px-4 pt-4 pb-3 transition-colors",
+        isOver && "ring-2 ring-navy-500 bg-navy-50",
+      )}
     >
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -41,18 +47,35 @@ export function ProjectDropColumn({
         </div>
         <Badge tone={STATUS_TONE[project.status]}>{STATUS_LABEL[project.status]}</Badge>
       </div>
-      {project.members.length === 0 ? (
-        <p className="py-2 text-xs text-slate-400">여기로 드래그해서 배치</p>
+      {members.length === 0 ? (
+        <p className="py-1 text-xs text-slate-400">여기로 드래그해서 배치</p>
       ) : (
         <ul className="space-y-1.5">
-          {project.members.map((m) => (
+          {members.map((m) => (
             <li key={m.userId} className="flex items-center gap-2">
-              <Avatar name={m.name} />
+              <button
+                type="button"
+                title={m.isLead ? "팀장 해제" : "팀장으로 지정"}
+                aria-label={`${m.name} ${m.isLead ? "팀장 해제" : "팀장으로 지정"}`}
+                aria-pressed={m.isLead}
+                onClick={() => onLead(m.userId, !m.isLead)}
+                className="relative shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-500"
+              >
+                <Avatar name={m.name} className={cn("transition-shadow", m.isLead && "ring-2 ring-navy-500 ring-offset-1")} />
+                {m.isLead && (
+                  <Crown
+                    size={12}
+                    strokeWidth={2.25}
+                    aria-hidden
+                    className="absolute -right-1 -top-1 rounded-full bg-white text-navy-700"
+                  />
+                )}
+              </button>
               <span className="min-w-0 flex-1 truncate text-sm text-slate-700">{m.name}</span>
               <Select
                 aria-label={`${m.name} 포지션`}
+                variant="underline"
                 value={m.position}
-                className="w-auto py-1 text-xs"
                 onChange={(e) => onPosition(m.userId, e.target.value as Position)}
               >
                 {Object.entries(POSITION_LABEL).map(([v, label]) => (

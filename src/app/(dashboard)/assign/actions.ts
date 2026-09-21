@@ -64,6 +64,20 @@ export async function unassignMember(projectId: string, userId: string): Promise
   return {};
 }
 
+/** 프로젝트당 팀장 한 명 — 기존 팀장을 내리고 지정한다 */
+export async function setLead(projectId: string, userId: string, isLead: boolean): Promise<{ error?: string }> {
+  await requireAdmin();
+  if ((await db.projectMember.count({ where: { projectId, userId } })) === 0) return { error: "배치되지 않은 멤버입니다" };
+  await db.$transaction([
+    db.projectMember.updateMany({ where: { projectId, isLead: true }, data: { isLead: false } }),
+    ...(isLead
+      ? [db.projectMember.update({ where: { projectId_userId: { projectId, userId } }, data: { isLead: true } })]
+      : []),
+  ]);
+  revalidate(projectId);
+  return {};
+}
+
 export async function setPosition(projectId: string, userId: string, position: Position): Promise<{ error?: string }> {
   await requireAdmin();
   if (!(position in Position)) return { error: "잘못된 포지션입니다" };

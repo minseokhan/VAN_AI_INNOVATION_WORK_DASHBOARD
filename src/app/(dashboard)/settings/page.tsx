@@ -22,6 +22,7 @@ export default async function SettingsPage() {
       username: true,
       name: true,
       level: true,
+      preferredPosition: true,
       tools: true,
       skills: true,
       interests: true,

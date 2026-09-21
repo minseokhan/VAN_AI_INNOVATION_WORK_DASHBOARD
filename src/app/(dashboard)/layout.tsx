@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </div>
       <MobileHeader user={user} pendingCount={pendingCount} />
       <main className="min-w-0 flex-1">
-        <div className="mx-auto max-w-6xl px-6 py-8 animate-[fade-in_200ms_ease-out] print:max-w-none print:p-0">{children}</div>
+        <div className="mx-auto max-w-6xl px-6 pt-12 pb-10 animate-[fade-in_200ms_ease-out] print:max-w-none print:p-0">{children}</div>
       </main>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import type { SkillLevel } from "@prisma/client";
+import type { Position, SkillLevel } from "@prisma/client";
 import { useActionState } from "react";
 import { changePassword, updateAccount, updateProfile, type FormState } from "@/app/(dashboard)/settings/actions";
 import { Button } from "@/components/ui/Button";
@@ -10,6 +10,7 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { useRetainOnError } from "@/components/ui/useRetainOnError";
 import { LEVELS, LEVEL_HINT, LEVEL_LABEL, MAX_PROFILE } from "@/lib/profile/validation";
+import { POSITIONS, POSITION_LABEL } from "@/lib/projects/labels";
 
 function SaveRow({ state, pending, label = "저장" }: { state: FormState; pending: boolean; label?: string }) {
   return (
@@ -61,6 +62,7 @@ export function PasswordForm() {
 
 export type ProfileValues = {
   level: SkillLevel | null;
+  preferredPosition: Position | null;
   tools: string | null;
   skills: string | null;
   interests: string | null;
@@ -73,16 +75,28 @@ export function ProfileForm({ values }: { values: ProfileValues }) {
   const e = state.fieldErrors ?? {};
   return (
     <form ref={formRef} action={submit} className="space-y-4">
-      <Field id="level" label="지금 수준" error={e.level}>
-        <Select id="level" name="level" defaultValue={values.level ?? ""}>
-          <option value="">선택 안 함</option>
-          {LEVELS.map((l) => (
-            <option key={l} value={l}>
-              {LEVEL_LABEL[l]} — {LEVEL_HINT[l]}
-            </option>
-          ))}
-        </Select>
-      </Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field id="level" label="지금 수준" error={e.level}>
+          <Select id="level" name="level" defaultValue={values.level ?? ""}>
+            <option value="">선택 안 함</option>
+            {LEVELS.map((l) => (
+              <option key={l} value={l}>
+                {LEVEL_LABEL[l]} — {LEVEL_HINT[l]}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field id="preferredPosition" label="선호 포지션" error={e.preferredPosition}>
+          <Select id="preferredPosition" name="preferredPosition" defaultValue={values.preferredPosition ?? ""}>
+            <option value="">선택 안 함</option>
+            {POSITIONS.map((p) => (
+              <option key={p} value={p}>
+                {POSITION_LABEL[p]}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      </div>
       <Field id="tools" label={`주요 사용 언어 · 툴/도구 (${MAX_PROFILE.tools}자 이하)`} error={e.tools}>
         <Input
           id="tools"

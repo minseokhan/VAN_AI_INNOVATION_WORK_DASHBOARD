@@ -53,6 +53,7 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
   const me = await requireUser();
   const result = validateProfile({
     level: field(formData, "level"),
+    preferredPosition: field(formData, "preferredPosition"),
     tools: field(formData, "tools"),
     skills: field(formData, "skills"),
     interests: field(formData, "interests"),
