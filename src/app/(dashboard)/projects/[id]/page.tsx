@@ -188,13 +188,16 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <p className="text-sm text-slate-400">아직 배치되지 않았습니다</p>
             ) : (
               <ul className="space-y-2">
-                {project.members.map((m) => (
-                  <li key={m.userId} className="flex items-center gap-2 text-sm">
-                    <Avatar name={m.user.name} />
-                    <span className="text-slate-700">{m.user.name}</span>
-                    <span className="text-xs text-slate-500">{POSITION_LABEL[m.position]}</span>
-                  </li>
-                ))}
+                {[...project.members]
+                  .sort((a, b) => Number(b.isLead) - Number(a.isLead))
+                  .map((m) => (
+                    <li key={m.userId} className="flex items-center gap-2 text-sm">
+                      <Avatar name={m.user.name} />
+                      <span className="text-slate-700">{m.user.name}</span>
+                      {m.isLead && <Badge tone="navy">팀장</Badge>}
+                      <span className="text-xs text-slate-500">{POSITION_LABEL[m.position]}</span>
+                    </li>
+                  ))}
               </ul>
             )}
             {user.role === "ADMIN" && (

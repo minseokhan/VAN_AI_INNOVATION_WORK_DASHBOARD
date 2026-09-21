@@ -31,6 +31,12 @@ enum Position {
   ETC
 }
 
+enum InquiryKind {
+  QUESTION
+  SUGGESTION
+  BUG
+}
+
 enum PlanDocKind {
   FILE
   LINK
@@ -63,6 +69,9 @@ model User {
   /// 운영진이 판단해 지정하는 수준. 본인이 쓰는 level 과 별도로 둬서 서로 덮지 않는다
   adminLevel SkillLevel?
 
+  /// 본인이 고른 선호 포지션. 실제 배치 포지션(ProjectMember.position)과는 별개
+  preferredPosition Position?
+
   memberships      ProjectMember[]
   createdFeatures  Feature[]       @relation("FeatureCreatedBy")
   weeklyUpdates    WeeklyUpdate[]
@@ -71,6 +80,8 @@ model User {
   answers          Question[]      @relation("QuestionAnsweredBy")
   profileLinks     ProfileLink[]
   reportNotes      ReportNote[]
+  inquiries        Inquiry[]       @relation("InquiryAuthor")
+  inquiryAnswers   Inquiry[]       @relation("InquiryAnsweredBy")
 }
 
 model Project {
@@ -102,6 +113,7 @@ model ProjectMember {
   projectId  String
   userId     String
   position   Position @default(ETC)
+  isLead     Boolean  @default(false)
   assignedAt DateTime @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -181,6 +193,23 @@ model PlanDoc {
   uploadedBy User    @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+}
+
+/** 사이트 자체에 대한 문의·건의. 프로젝트와 무관하며 운영진·부원 모두 남길 수 있다 */
+model Inquiry {
+  id           String      @id @default(cuid())
+  authorId     String
+  kind         InquiryKind @default(QUESTION)
+  content      String
+  answer       String?
+  answeredById String?
+  answeredAt   DateTime?
+  createdAt    DateTime    @default(now())
+
+  author     User  @relation("InquiryAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  answeredBy User? @relation("InquiryAnsweredBy", fields: [answeredById], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
 }
 
 model Question {

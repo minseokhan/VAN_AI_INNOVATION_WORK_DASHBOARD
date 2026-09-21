@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
+import { cn } from "@/lib/utils/cn";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PortfolioLinks } from "@/components/settings/PortfolioLinks";
 import { AccountForm, PasswordForm, ProfileForm } from "@/components/settings/SettingsForms";
@@ -9,7 +10,7 @@ function Section({ title, description, children }: { title: string; description?
     <section className="rounded-md border border-slate-200 bg-white p-5">
       <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
       {description && <p className="mt-1 mb-4 text-xs text-slate-500">{description}</p>}
-      <div className={description ? "" : "mt-4"}>{children}</div>
+      <div className={cn("max-w-2xl", !description && "mt-4")}>{children}</div>
     </section>
   );
 }
@@ -22,6 +23,7 @@ export default async function SettingsPage() {
       username: true,
       name: true,
       level: true,
+      preferredPosition: true,
       tools: true,
       skills: true,
       interests: true,
@@ -32,7 +34,7 @@ export default async function SettingsPage() {
   if (!user) return null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-6">
       <PageHeader title="개인 설정" />
       <Section title="계정">
         <AccountForm username={user.username} name={user.name} />

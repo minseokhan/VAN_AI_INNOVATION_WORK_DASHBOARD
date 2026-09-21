@@ -18,13 +18,18 @@ export default async function AssignPage({ searchParams }: { searchParams: Promi
     db.user.findMany({
       where: { approved: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, _count: { select: { memberships: true } } },
+      // 보드에 안 보이는 완료 프로젝트도 포함한다 — 부하를 볼 때 기준은 총 참여 수다
+      select: {
+        id: true,
+        name: true,
+        memberships: { select: { project: { select: { code: true } } } },
+      },
     }),
     db.project.findMany({
       where: showDone ? {} : { status: { not: "DONE" } },
       select: {
         id: true, code: true, title: true, status: true, priority: true,
-        members: { select: { userId: true, position: true, user: { select: { name: true } } } },
+        members: { select: { userId: true, position: true, isLead: true, user: { select: { name: true } } } },
       },
     }),
   ]);
@@ -39,10 +44,10 @@ export default async function AssignPage({ searchParams }: { searchParams: Promi
         }
       />
       <AssignBoard
-        members={users.map((u) => ({ id: u.id, name: u.name, projectCount: u._count.memberships }))}
+        members={users.map((u) => ({ id: u.id, name: u.name, codes: u.memberships.map((m) => m.project.code).sort() }))}
         projects={sortProjects(projects).map(({ members, ...p }) => ({
           ...p,
-          members: members.map((m) => ({ userId: m.userId, name: m.user.name, position: m.position })),
+          members: members.map((m) => ({ userId: m.userId, name: m.user.name, position: m.position, isLead: m.isLead })),
         }))}
       />
     </>

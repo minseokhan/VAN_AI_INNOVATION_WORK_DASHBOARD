@@ -1,6 +1,6 @@
 "use server";
 
-import { Position, type Prisma } from "@prisma/client";
+import { Position, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
@@ -60,6 +60,35 @@ export async function unassignMember(projectId: string, userId: string): Promise
     await tx.projectMember.deleteMany({ where: { projectId, userId } });
     await syncStatus(tx, projectId);
   });
+  revalidate(projectId);
+  return {};
+}
+
+/**
+ * 프로젝트당 팀장 한 명. 지정하면 기존 팀장을 내리고 대상을 올리며, 해제는 대상 한 명만 내린다.
+ * (해제에서 프로젝트 전체를 내리면, 보드가 낡은 사이 다른 운영진이 지정한 팀장까지 같이 강등된다)
+ * 두 운영진이 동시에 지정하면 "기존 팀장 조회 → 내림"이 서로를 건너뛰어 팀장이 둘 남으므로 직렬화한다.
+ */
+export async function setLead(projectId: string, userId: string, isLead: boolean): Promise<{ error?: string }> {
+  await requireAdmin();
+  let count: number;
+  try {
+    ({ count } = await db.$transaction(
+      async (tx) => {
+        if (!isLead) return tx.projectMember.updateMany({ where: { projectId, userId }, data: { isLead: false } });
+        await tx.projectMember.updateMany({ where: { projectId, isLead: true }, data: { isLead: false } });
+        return tx.projectMember.updateMany({ where: { projectId, userId }, data: { isLead: true } });
+      },
+      { isolationLevel: "Serializable" },
+    ));
+  } catch (e) {
+    // P2034: 직렬화 충돌 — 다른 운영진이 같은 프로젝트의 팀장을 동시에 바꿨다
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2034") {
+      return { error: "다른 운영진이 방금 팀장을 바꿨습니다. 새로고침 후 다시 시도해 주세요" };
+    }
+    throw e;
+  }
+  if (count === 0) return { error: "배치되지 않은 멤버입니다" };
   revalidate(projectId);
   return {};
 }

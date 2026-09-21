@@ -13,6 +13,8 @@ export const STATUS_TONE: Record<ProjectStatus, BadgeTone> = {
   DONE: "green",
 };
 
+export const POSITIONS = ["FE", "BE", "AI", "PM", "ETC"] as const satisfies readonly Position[];
+
 export const POSITION_LABEL: Record<Position, string> = {
   FE: "프론트",
   BE: "백엔드",

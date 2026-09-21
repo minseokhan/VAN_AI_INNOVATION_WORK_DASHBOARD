@@ -60,7 +60,7 @@ export async function getMemberDetail(userId: string) {
     where: { id: userId },
     select: {
       id: true, username: true, name: true, role: true, createdAt: true,
-      level: true, adminLevel: true, tools: true, skills: true, interests: true, bio: true,
+      level: true, adminLevel: true, preferredPosition: true, tools: true, skills: true, interests: true, bio: true,
       profileLinks: { orderBy: { createdAt: "desc" }, select: { id: true, kind: true, title: true, url: true, createdAt: true } },
       memberships: {
         orderBy: { assignedAt: "desc" },

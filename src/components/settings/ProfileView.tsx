@@ -1,11 +1,13 @@
 import { FileText, Link2 } from "lucide-react";
-import type { PlanDocKind, SkillLevel } from "@prisma/client";
+import type { PlanDocKind, Position, SkillLevel } from "@prisma/client";
 import { Badge } from "@/components/ui/Badge";
 import { LEVEL_HINT, LEVEL_LABEL } from "@/lib/profile/validation";
+import { POSITION_LABEL } from "@/lib/projects/labels";
 import { formatDate } from "@/lib/utils/date";
 
 export type ProfileViewData = {
   level: SkillLevel | null;
+  preferredPosition: Position | null;
   tools: string | null;
   skills: string | null;
   interests: string | null;
@@ -37,6 +39,9 @@ export function ProfileView({ data }: { data: ProfileViewData }) {
         ) : (
           EMPTY
         )}
+      </Block>
+      <Block title="선호 포지션">
+        {data.preferredPosition ? <Badge tone="navy">{POSITION_LABEL[data.preferredPosition]}</Badge> : EMPTY}
       </Block>
       <Block title="주요 사용 언어 · 툴/도구">
         {data.tools ? <p className="text-sm leading-relaxed text-slate-700">{data.tools}</p> : EMPTY}

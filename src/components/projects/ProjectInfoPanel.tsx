@@ -87,7 +87,14 @@ export function ProjectInfoPanel({ projectId, info, canEdit }: { projectId: stri
             )}
           </Field>
           <Field id="infraNote" label="인프라" error={errors.infraNote}>
-            <Textarea id="infraNote" name="infraNote" defaultValue={info.infraNote ?? ""} rows={3} maxLength={500} />
+            <Textarea
+              id="infraNote"
+              name="infraNote"
+              defaultValue={info.infraNote ?? ""}
+              rows={3}
+              maxLength={500}
+              placeholder="예) Vercel 배포 · Supabase(Postgres) · Vercel Blob 파일 저장 · GitHub Actions CI"
+            />
           </Field>
           <Field id="startedAt" label="시작일" error={errors.startedAt}>
             <Input id="startedAt" name="startedAt" type="date" defaultValue={info.startedAt ?? ""} />

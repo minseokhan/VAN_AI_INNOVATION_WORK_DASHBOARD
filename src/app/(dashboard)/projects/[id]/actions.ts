@@ -18,7 +18,7 @@ import {
 import { validatePlanLink } from "@/lib/plan-docs/validation";
 import { getWeekStart } from "@/lib/utils/week";
 
-export type FormState<K extends string = string> = { error?: string; fieldErrors?: Partial<Record<K, string>> };
+export type FormState<K extends string = string> = { ok?: boolean; error?: string; fieldErrors?: Partial<Record<K, string>> };
 
 /** 세션 확인 → 프로젝트 멤버 조회 → 편집 권한 검사. 실패 시 throw */
 async function requireEditor(projectId: string) {

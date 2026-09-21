@@ -1,4 +1,5 @@
-import type { SkillLevel } from "@prisma/client";
+import type { Position, SkillLevel } from "@prisma/client";
+import { POSITIONS } from "@/lib/projects/labels";
 
 export const LEVELS = ["BEGINNER", "NOVICE", "INTERMEDIATE", "ADVANCED"] as const satisfies readonly SkillLevel[];
 
@@ -19,9 +20,10 @@ export const LEVEL_HINT: Record<SkillLevel, string> = {
 
 export const MAX_PROFILE = { tools: 200, skills: 500, interests: 300, bio: 2000 };
 
-export type ProfileInput = { level: string; tools: string; skills: string; interests: string; bio: string };
+export type ProfileInput = { level: string; preferredPosition: string; tools: string; skills: string; interests: string; bio: string };
 export type ProfileValue = {
   level: SkillLevel | null;
+  preferredPosition: Position | null;
   tools: string | null;
   skills: string | null;
   interests: string | null;
@@ -39,6 +41,8 @@ export function validateProfile(input: ProfileInput): ProfileResult {
   const errors: Partial<Record<keyof ProfileInput, string>> = {};
   const level = input.level.trim();
   if (level && !(LEVELS as readonly string[]).includes(level)) errors.level = "수준 값이 올바르지 않습니다";
+  const pos = input.preferredPosition.trim();
+  if (pos && !(POSITIONS as readonly string[]).includes(pos)) errors.preferredPosition = "포지션 값이 올바르지 않습니다";
 
   const [tools, toolsErr] = text(input.tools, MAX_PROFILE.tools, "주요 사용 언어 · 툴");
   const [skills, skillsErr] = text(input.skills, MAX_PROFILE.skills, "구현할 수 있는 것");
@@ -50,5 +54,15 @@ export function validateProfile(input: ProfileInput): ProfileResult {
   if (bioErr) errors.bio = bioErr;
 
   if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, value: { level: (level || null) as SkillLevel | null, tools, skills, interests, bio } };
+  return {
+    ok: true,
+    value: {
+      level: (level || null) as SkillLevel | null,
+      preferredPosition: (pos || null) as Position | null,
+      tools,
+      skills,
+      interests,
+      bio,
+    },
+  };
 }
