@@ -8,6 +8,7 @@ import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { useRetainOnError } from "@/components/ui/useRetainOnError";
 import { LANGUAGE_OPTIONS, type ProjectInfoInput } from "@/lib/projects/info";
 
 export type ProjectInfo = Record<keyof ProjectInfoInput, string | null>; // startedAt은 "YYYY-MM-DD"
@@ -43,6 +44,7 @@ export function ProjectInfoPanel({ projectId, info, canEdit }: { projectId: stri
     },
     {},
   );
+  const { formRef, submit } = useRetainOnError(formAction, state);
   const errors = state.fieldErrors ?? {};
 
   return (
@@ -57,7 +59,7 @@ export function ProjectInfoPanel({ projectId, info, canEdit }: { projectId: stri
       }
     >
       {editing ? (
-        <form action={formAction} className="space-y-3">
+        <form ref={formRef} action={submit} className="space-y-3">
           <Field id="githubUrl" label="GitHub" error={errors.githubUrl}>
             <Input id="githubUrl" name="githubUrl" type="url" defaultValue={info.githubUrl ?? ""} placeholder="https://github.com/…" />
           </Field>

@@ -7,15 +7,17 @@ import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { useRetainOnError } from "@/components/ui/useRetainOnError";
 
 export type QuestionProjectOption = { id: string; code: string; title: string };
 
 export function QuestionForm({ projects, defaultProjectId }: { projects: QuestionProjectOption[]; defaultProjectId?: string }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(askQuestion, {});
+  const { formRef, submit } = useRetainOnError(formAction, state);
   const errors = state.fieldErrors ?? {};
   const selected = projects.some((p) => p.id === defaultProjectId) ? defaultProjectId : projects[0]?.id;
   return (
-    <form action={formAction} className="space-y-3 rounded-md border border-slate-200 p-4">
+    <form ref={formRef} action={submit} className="space-y-3 rounded-md border border-slate-200 p-4">
       <Field id="q-project" label="프로젝트" error={errors.projectId}>
         <Select id="q-project" name="projectId" defaultValue={selected} required>
           {projects.map((p) => (

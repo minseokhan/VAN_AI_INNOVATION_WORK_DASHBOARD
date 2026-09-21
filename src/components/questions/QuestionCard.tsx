@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { Field } from "@/components/ui/Field";
 import { Textarea } from "@/components/ui/Textarea";
+import { useRetainOnError } from "@/components/ui/useRetainOnError";
 import { formatDate } from "@/lib/utils/date";
 
 export type QuestionItem = {
@@ -33,6 +34,7 @@ export function QuestionCard({ q, isAdmin, canDelete }: { q: QuestionItem; isAdm
     if (!r.error && !r.fieldErrors) setAnswering(false);
     return r;
   }, {});
+  const { formRef, submit } = useRetainOnError(formAction, state);
 
   return (
     <li className="rounded-md border border-slate-200 bg-white p-5">
@@ -60,7 +62,7 @@ export function QuestionCard({ q, isAdmin, canDelete }: { q: QuestionItem; isAdm
       )}
 
       {answering && (
-        <form action={formAction} className="mt-3 space-y-2">
+        <form ref={formRef} action={submit} className="mt-3 space-y-2">
           <Field id={`answer-${q.id}`} label="답변" error={state.fieldErrors?.answer}>
             <Textarea id={`answer-${q.id}`} name="answer" rows={3} maxLength={4000} defaultValue={q.answer ?? ""} required />
           </Field>

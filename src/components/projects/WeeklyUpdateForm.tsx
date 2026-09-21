@@ -5,6 +5,7 @@ import { submitWeeklyUpdate, type FormState } from "@/app/(dashboard)/projects/[
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Textarea } from "@/components/ui/Textarea";
+import { useRetainOnError } from "@/components/ui/useRetainOnError";
 import type { WeeklyInput } from "@/lib/projects/info";
 
 export function WeeklyUpdateForm({
@@ -25,9 +26,10 @@ export function WeeklyUpdateForm({
     },
     {},
   );
+  const { formRef, submit } = useRetainOnError(formAction, state);
   const errors = state.fieldErrors ?? {};
   return (
-    <form action={formAction} className="space-y-3 rounded-md border border-slate-200 p-4">
+    <form ref={formRef} action={submit} className="space-y-3 rounded-md border border-slate-200 p-4">
       <p className="text-xs font-medium text-slate-500">{weekLabel}</p>
       <Field id="didThisWeek" label="이번 주 한 일" error={errors.didThisWeek}>
         <Textarea id="didThisWeek" name="didThisWeek" defaultValue={current?.didThisWeek} rows={3} maxLength={2000} required />
