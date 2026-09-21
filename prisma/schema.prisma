@@ -31,6 +31,12 @@ enum Position {
   ETC
 }
 
+enum InquiryKind {
+  QUESTION
+  SUGGESTION
+  BUG
+}
+
 enum PlanDocKind {
   FILE
   LINK
@@ -74,6 +80,8 @@ model User {
   answers          Question[]      @relation("QuestionAnsweredBy")
   profileLinks     ProfileLink[]
   reportNotes      ReportNote[]
+  inquiries        Inquiry[]       @relation("InquiryAuthor")
+  inquiryAnswers   Inquiry[]       @relation("InquiryAnsweredBy")
 }
 
 model Project {
@@ -185,6 +193,23 @@ model PlanDoc {
   uploadedBy User    @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+}
+
+/** 사이트 자체에 대한 문의·건의. 프로젝트와 무관하며 운영진·부원 모두 남길 수 있다 */
+model Inquiry {
+  id           String      @id @default(cuid())
+  authorId     String
+  kind         InquiryKind @default(QUESTION)
+  content      String
+  answer       String?
+  answeredById String?
+  answeredAt   DateTime?
+  createdAt    DateTime    @default(now())
+
+  author     User  @relation("InquiryAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  answeredBy User? @relation("InquiryAnsweredBy", fields: [answeredById], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
 }
 
 model Question {

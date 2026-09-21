@@ -33,7 +33,7 @@ export default async function SettingsPage() {
   if (!user) return null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-6">
       <PageHeader title="개인 설정" />
       <Section title="계정">
         <AccountForm username={user.username} name={user.name} />
