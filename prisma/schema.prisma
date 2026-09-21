@@ -55,9 +55,13 @@ model User {
 
   // 역량 프로필 (본인이 /settings에서 작성, 운영진이 열람)
   level     SkillLevel?
+  tools     String?
   skills    String?
   interests String?
   bio       String?
+
+  /// 운영진이 판단해 지정하는 수준. 본인이 쓰는 level 과 별도로 둬서 서로 덮지 않는다
+  adminLevel SkillLevel?
 
   memberships      ProjectMember[]
   createdFeatures  Feature[]       @relation("FeatureCreatedBy")

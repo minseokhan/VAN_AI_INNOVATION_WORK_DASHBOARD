@@ -17,10 +17,16 @@ export const LEVEL_HINT: Record<SkillLevel, string> = {
   ADVANCED: "서비스 하나를 설계·배포까지 끌고 갈 수 있다",
 };
 
-export const MAX_PROFILE = { skills: 500, interests: 300, bio: 2000 };
+export const MAX_PROFILE = { tools: 200, skills: 500, interests: 300, bio: 2000 };
 
-export type ProfileInput = { level: string; skills: string; interests: string; bio: string };
-export type ProfileValue = { level: SkillLevel | null; skills: string | null; interests: string | null; bio: string | null };
+export type ProfileInput = { level: string; tools: string; skills: string; interests: string; bio: string };
+export type ProfileValue = {
+  level: SkillLevel | null;
+  tools: string | null;
+  skills: string | null;
+  interests: string | null;
+  bio: string | null;
+};
 export type ProfileResult = { ok: true; value: ProfileValue } | { ok: false; errors: Partial<Record<keyof ProfileInput, string>> };
 
 function text(v: string, max: number, label: string): [string | null, string | undefined] {
@@ -34,13 +40,15 @@ export function validateProfile(input: ProfileInput): ProfileResult {
   const level = input.level.trim();
   if (level && !(LEVELS as readonly string[]).includes(level)) errors.level = "수준 값이 올바르지 않습니다";
 
+  const [tools, toolsErr] = text(input.tools, MAX_PROFILE.tools, "주요 사용 언어 · 툴");
   const [skills, skillsErr] = text(input.skills, MAX_PROFILE.skills, "구현할 수 있는 것");
   const [interests, interestsErr] = text(input.interests, MAX_PROFILE.interests, "관심 분야");
   const [bio, bioErr] = text(input.bio, MAX_PROFILE.bio, "소개");
+  if (toolsErr) errors.tools = toolsErr;
   if (skillsErr) errors.skills = skillsErr;
   if (interestsErr) errors.interests = interestsErr;
   if (bioErr) errors.bio = bioErr;
 
   if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, value: { level: (level || null) as SkillLevel | null, skills, interests, bio } };
+  return { ok: true, value: { level: (level || null) as SkillLevel | null, tools, skills, interests, bio } };
 }

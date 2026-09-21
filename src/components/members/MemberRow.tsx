@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useTransition } from "react";
-import { approveUser, rejectUser, setRole } from "@/app/(dashboard)/members/actions";
+import { approveUser, rejectUser } from "@/app/(dashboard)/members/actions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -10,14 +9,18 @@ import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { LEVEL_LABEL } from "@/lib/profile/validation";
 import { formatDate } from "@/lib/utils/date";
 
-type Member = {
+export type Member = {
   id: string;
   username: string;
   name: string;
   role: "ADMIN" | "MEMBER";
+  /** 본인이 쓴 자기평가 */
   level: keyof typeof LEVEL_LABEL | null;
+  /** 운영진이 판단해 지정한 수준. 있으면 이쪽이 표에 보인다 */
+  adminLevel: keyof typeof LEVEL_LABEL | null;
   createdAt: Date;
-  projectCount: number;
+  /** 배치된 프로젝트의 과제 번호 (예: ["4-4", "6-2"]) */
+  projectCodes: string[];
 };
 
 function useAction() {
@@ -63,47 +66,39 @@ export function PendingCard({ user }: { user: Pick<Member, "id" | "username" | "
   );
 }
 
-export function MemberRow({ user, isSelf, adminCount }: { user: Member; isSelf: boolean; adminCount: number }) {
-  const { error, pending, run } = useAction();
+export function MemberRow({ user, isSelf, onOpen }: { user: Member; isSelf: boolean; onOpen: () => void }) {
   const isAdmin = user.role === "ADMIN";
-  const canDemote = !isSelf && adminCount > 1;
   return (
-    <>
-      <tr className="border-b border-slate-100">
-        <td className="px-3 py-2">
-          <Link href={`/members/${user.id}`} className="inline-flex items-center gap-2 text-sm text-slate-900 hover:underline">
-            <Avatar name={user.name} />
-            {user.name}
-            {isSelf && <span className="text-xs text-slate-500">(나)</span>}
-          </Link>
-        </td>
-        <td className="px-3 py-2 text-sm text-slate-700">{user.username}</td>
-        <td className="px-3 py-2">
-          <Badge tone={isAdmin ? "navy" : "neutral"}>{isAdmin ? "운영진" : "부원"}</Badge>
-        </td>
-        <td className="px-3 py-2 text-sm text-slate-700">
-          {user.level ? LEVEL_LABEL[user.level] : <span className="text-slate-400">미작성</span>}
-        </td>
-        <td className="px-3 py-2 text-sm tabular-nums text-slate-700">{user.projectCount}</td>
-        <td className="px-3 py-2">
-          {isAdmin ? (
-            <Button variant="secondary" size="sm" disabled={pending || !canDemote} onClick={() => run(() => setRole(user.id, "MEMBER"))}>
-              운영진 해제
-            </Button>
-          ) : (
-            <Button variant="secondary" size="sm" disabled={pending || isSelf} onClick={() => run(() => setRole(user.id, "ADMIN"))}>
-              운영진 지정
-            </Button>
-          )}
-        </td>
-      </tr>
-      {error && (
-        <tr>
-          <td colSpan={6} className="px-3 pb-2">
-            <p className="text-xs text-red-700">{error}</p>
-          </td>
-        </tr>
-      )}
-    </>
+    <tr className="border-b border-slate-100">
+      <td className="px-3 py-2">
+        <span className="inline-flex items-center gap-3 text-sm text-slate-900">
+          <Avatar name={user.name} />
+          {user.name}
+          {isSelf && <span className="text-xs text-slate-500">(나)</span>}
+        </span>
+      </td>
+      <td className="px-3 py-2 text-sm text-slate-700">{user.username}</td>
+      <td className="px-3 py-2">
+        <Badge tone={isAdmin ? "navy" : "neutral"}>{isAdmin ? "운영진" : "부원"}</Badge>
+      </td>
+      <td className="px-3 py-2 text-sm text-slate-700">
+        {user.adminLevel ? (
+          <Badge tone="navy">{LEVEL_LABEL[user.adminLevel]}</Badge>
+        ) : user.level ? (
+          LEVEL_LABEL[user.level]
+        ) : (
+          <span className="text-slate-400">미작성</span>
+        )}
+      </td>
+      <td className="px-3 py-2 text-sm text-slate-700">
+        <span className="tabular-nums">{user.projectCodes.length}</span>
+        {user.projectCodes.length > 0 && <span className="ml-1 text-xs text-slate-500">({user.projectCodes.join(", ")})</span>}
+      </td>
+      <td className="px-3 py-2">
+        <Button variant="secondary" size="sm" onClick={onOpen}>
+          상세 보기
+        </Button>
+      </td>
+    </tr>
   );
 }
