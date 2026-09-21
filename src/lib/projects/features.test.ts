@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canTransitionStatus, nextOrder, validateFeatureTitle } from "./features";
+import { MAX_FEATURES, canTransitionStatus, nextOrder, parseFeatureList, validateFeatureTitle } from "./features";
 
 describe("nextOrder", () => {
   it("빈 배열 → 0", () => {
@@ -41,5 +41,30 @@ describe("canTransitionStatus", () => {
   });
   it("같은 상태로는 불가", () => {
     expect(canTransitionStatus("DONE", "DONE", 1)).toBe(false);
+  });
+});
+
+describe("parseFeatureList", () => {
+  it("항목마다 trim 하고 빈 항목은 버린다", () => {
+    expect(parseFeatureList(["로그인", "", "  회원가입  "])).toEqual({ ok: true, titles: ["로그인", "회원가입"] });
+  });
+  it("입력이 없으면 빈 배열", () => {
+    expect(parseFeatureList([])).toEqual({ ok: true, titles: [] });
+    expect(parseFeatureList(["  "])).toEqual({ ok: true, titles: [] });
+  });
+  it("입력 순서를 유지한다", () => {
+    expect(parseFeatureList(["c", "a", "b"])).toEqual({ ok: true, titles: ["c", "a", "b"] });
+  });
+  it(`${MAX_FEATURES}개까지 허용하고 넘으면 에러`, () => {
+    const many = Array.from({ length: MAX_FEATURES }, (_, i) => `f${i}`);
+    expect(parseFeatureList(many).ok).toBe(true);
+    const r = parseFeatureList([...many, "하나 더"]);
+    expect(r.ok).toBe(false);
+    expect(r.ok === false && r.error).toMatch(String(MAX_FEATURES));
+  });
+  it("120자 초과 항목이 있으면 에러", () => {
+    const r = parseFeatureList(["정상", "x".repeat(121)]);
+    expect(r.ok).toBe(false);
+    expect(r.ok === false && r.error).toMatch(/120/);
   });
 });

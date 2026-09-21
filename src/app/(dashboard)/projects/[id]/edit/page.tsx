@@ -21,7 +21,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
   ]);
   if (!project) notFound();
   return (
-    <>
+    <div className="mx-auto max-w-2xl">
       <PageHeader title={`편집: ${project.title}`} />
       <ProjectForm
         action={updateProject.bind(null, id)}
@@ -41,6 +41,6 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
           </div>
         }
       />
-    </>
+    </div>
   );
 }

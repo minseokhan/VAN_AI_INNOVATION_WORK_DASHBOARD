@@ -17,3 +17,16 @@ export function canTransitionStatus(from: ProjectStatus, to: ProjectStatus, memb
   if (memberCount <= 0) return false;
   return (from === "IN_PROGRESS" && to === "DONE") || (from === "DONE" && to === "IN_PROGRESS");
 }
+
+export const MAX_FEATURES = 50;
+
+/** 기능 체크리스트 입력 항목들 → 기능 제목 배열. 공백 항목은 무시, 첫 오류에서 중단 */
+export function parseFeatureList(raw: string[]): { ok: true; titles: string[] } | { ok: false; error: string } {
+  const titles = raw.map((s) => s.trim()).filter(Boolean);
+  if (titles.length > MAX_FEATURES) return { ok: false, error: `기능은 한 번에 ${MAX_FEATURES}개까지 등록할 수 있습니다` };
+  for (const t of titles) {
+    const error = validateFeatureTitle(t);
+    if (error) return { ok: false, error };
+  }
+  return { ok: true, titles };
+}

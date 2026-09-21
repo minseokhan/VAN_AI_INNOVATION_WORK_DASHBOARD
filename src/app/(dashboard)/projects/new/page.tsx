@@ -16,9 +16,9 @@ export default async function NewProjectPage() {
     (c) => c.category,
   );
   return (
-    <>
+    <div className="mx-auto max-w-2xl">
       <PageHeader title="새 프로젝트" />
-      <ProjectForm action={createProject} categories={categories} submitLabel="생성" cancelHref="/" />
-    </>
+      <ProjectForm action={createProject} categories={categories} submitLabel="생성" cancelHref="/" withFeatures />
+    </div>
   );
 }
