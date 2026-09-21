@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
-import { cn } from "@/lib/utils/cn";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PortfolioLinks } from "@/components/settings/PortfolioLinks";
 import { AccountForm, PasswordForm, ProfileForm } from "@/components/settings/SettingsForms";
@@ -10,7 +9,7 @@ function Section({ title, description, children }: { title: string; description?
     <section className="rounded-md border border-slate-200 bg-white p-5">
       <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
       {description && <p className="mt-1 mb-4 text-xs text-slate-500">{description}</p>}
-      <div className={cn("max-w-2xl", !description && "mt-4")}>{children}</div>
+      <div className={description ? undefined : "mt-4"}>{children}</div>
     </section>
   );
 }
