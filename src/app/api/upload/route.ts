@@ -21,7 +21,9 @@ export async function POST(req: Request) {
     }
     throw e;
   }
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  // Vercel Blob 은 BLOB_READ_WRITE_TOKEN 또는 VERCEL_OIDC_TOKEN+BLOB_STORE_ID 로 인증한다.
+  // 최근 생성한 스토어는 토큰을 주입하지 않고 OIDC 만 쓰므로 둘 다 없을 때만 미설정으로 본다
+  if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) {
     return NextResponse.json({ error: "파일 저장소가 설정되지 않았습니다. 링크로 등록해 주세요." }, { status: 503 });
   }
   if (!(file instanceof File)) return NextResponse.json({ error: "파일이 필요합니다" }, { status: 400 });
