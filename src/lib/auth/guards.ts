@@ -1,10 +1,14 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { db } from "@/lib/db";
 import { SESSION_COOKIE, verifySession, type SessionUser } from "./session";
 
-/** 쿠키의 JWT를 검증한 뒤 DB에서 최신 role/approved를 다시 읽는다. */
-export async function getSessionUser(): Promise<SessionUser | null> {
+/**
+ * 쿠키의 JWT를 검증한 뒤 DB에서 최신 role/approved를 다시 읽는다.
+ * cache() 로 감싸 한 요청 안에서 레이아웃·페이지·액션이 여러 번 불러도 DB는 한 번만 친다.
+ */
+export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const session = await verifySession(token);
   if (!session) return null;
@@ -12,7 +16,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     where: { id: session.id },
     select: { id: true, username: true, name: true, role: true, approved: true },
   });
-}
+});
 
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();

@@ -49,13 +49,8 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   const all = questions.map((q) => ({ ...q, project: { ...q.project, memberIds: q.project.members.map((m) => m.userId) } }));
   const visible = filterQuestions(all, { scope, project }, user.id);
   const unanswered = filterQuestions(all, { scope: "UNANSWERED", project }, user.id).length;
-  const href = (s: QuestionFilter["scope"], p = project) => {
-    const qs = new URLSearchParams();
-    if (s !== "ALL") qs.set("scope", s);
-    if (p) qs.set("project", p);
-    const str = qs.toString();
-    return str ? `/questions?${str}` : "/questions";
-  };
+  // 범위 버튼은 프로젝트 필터(?project=)를 함께 해제한다 — 별도 해제 버튼 없이 "전체"로 돌아올 수 있게
+  const href = (s: QuestionFilter["scope"]) => (s === "ALL" ? "/questions" : `/questions?scope=${s}`);
 
   return (
     <>
@@ -69,29 +64,22 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
           <QuestionForm projects={projects} defaultProjectId={project} />
         )}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div role="group" aria-label="범위" className="inline-flex rounded-md border border-slate-300">
-            {SCOPES.map((s) => (
-              <Link
-                key={s.key}
-                href={href(s.key)}
-                aria-current={scope === s.key ? "page" : undefined}
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors first:rounded-l-md last:rounded-r-md",
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-500",
-                  scope === s.key ? "bg-navy-100 font-medium text-navy-700" : "text-slate-600 hover:bg-slate-50",
-                )}
-              >
-                {s.label}
-                {s.key === "UNANSWERED" && unanswered > 0 && <Badge tone="amber">{unanswered}</Badge>}
-              </Link>
-            ))}
-          </div>
-          {project && (
-            <Link href={href(scope, undefined)} className="text-xs text-navy-500 hover:underline">
-              프로젝트 필터 해제
+        <div role="group" aria-label="범위" className="inline-flex rounded-md border border-slate-300">
+          {SCOPES.map((s) => (
+            <Link
+              key={s.key}
+              href={href(s.key)}
+              aria-current={scope === s.key ? "page" : undefined}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors first:rounded-l-md last:rounded-r-md",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-500",
+                scope === s.key ? "bg-navy-100 font-medium text-navy-700" : "text-slate-600 hover:bg-slate-50",
+              )}
+            >
+              {s.label}
+              {s.key === "UNANSWERED" && unanswered > 0 && <Badge tone="amber">{unanswered}</Badge>}
             </Link>
-          )}
+          ))}
         </div>
 
         {visible.length === 0 ? (
