@@ -1,13 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { filterProjects, sortProjects } from "./filter";
+import { filterProjects, myProjectIds, sortProjects } from "./filter";
 
-const p = (over: Partial<{ status: "UNASSIGNED" | "IN_PROGRESS" | "DONE"; category: string; title: string; code: string; summary: string; priority: string }>) => ({
+const p = (
+  over: Partial<{
+    status: "UNASSIGNED" | "IN_PROGRESS" | "DONE";
+    category: string;
+    title: string;
+    code: string;
+    summary: string;
+    priority: string;
+    members: { id: string }[];
+  }>,
+) => ({
+  id: over.code ?? "1-1",
   status: "UNASSIGNED" as const,
   category: "교육",
   title: "제목",
   code: "1-1",
   summary: "요약",
   priority: "中",
+  members: [] as { id: string }[],
   ...over,
 });
 
@@ -52,9 +64,39 @@ describe("sortProjects", () => {
     const list = [p({ code: "2-10" }), p({ code: "2-2" }), p({ code: "2-1" }), p({ code: "10-1" })];
     expect(sortProjects(list).map((x) => x.code)).toEqual(["2-1", "2-2", "2-10", "10-1"]);
   });
+  it("내 프로젝트가 맨 위로", () => {
+    const list = [
+      p({ code: "1", status: "IN_PROGRESS", priority: "上" }),
+      p({ code: "2", status: "DONE", members: [{ id: "me" }] }),
+      p({ code: "3", status: "IN_PROGRESS", priority: "下", members: [{ id: "me" }] }),
+    ];
+    expect(sortProjects(list, myProjectIds(list, "me")).map((x) => x.code)).toEqual(["3", "2", "1"]);
+  });
+  it("내 프로젝트끼리는 기존 순서 규칙을 그대로 따른다", () => {
+    const list = [
+      p({ code: "1", status: "DONE", members: [{ id: "me" }] }),
+      p({ code: "2", status: "IN_PROGRESS", members: [{ id: "me" }] }),
+    ];
+    expect(sortProjects(list, myProjectIds(list, "me")).map((x) => x.code)).toEqual(["2", "1"]);
+  });
+  it("집합이 없으면 기존 정렬 그대로", () => {
+    const list = [p({ code: "1", status: "DONE", members: [{ id: "me" }] }), p({ code: "2", status: "IN_PROGRESS" })];
+    expect(sortProjects(list).map((x) => x.code)).toEqual(["2", "1"]);
+  });
   it("원본 배열을 변경하지 않는다", () => {
     const list = [p({ code: "2" }), p({ code: "1" })];
     sortProjects(list);
     expect(list.map((x) => x.code)).toEqual(["2", "1"]);
+  });
+});
+
+describe("myProjectIds", () => {
+  it("내가 멤버인 프로젝트의 id만 모은다", () => {
+    const list = [
+      p({ code: "1", members: [{ id: "me" }, { id: "other" }] }),
+      p({ code: "2", members: [{ id: "other" }] }),
+      p({ code: "3" }),
+    ];
+    expect([...myProjectIds(list, "me")]).toEqual(["1"]);
   });
 });
