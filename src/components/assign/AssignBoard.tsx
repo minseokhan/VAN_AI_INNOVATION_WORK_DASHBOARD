@@ -87,7 +87,7 @@ export function AssignBoard({ members, projects }: { members: BoardMember[]; pro
             ))}
           </div>
         </aside>
-        <div className="grid min-w-0 flex-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-w-0 flex-1 content-start items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
           {optimistic.map((p) => (
             <ProjectDropColumn
               key={p.id}

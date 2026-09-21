@@ -76,6 +76,7 @@ export function ProjectDropColumn({
                 aria-label={`${m.name} 포지션`}
                 variant="underline"
                 value={m.position}
+                className="w-24"
                 onChange={(e) => onPosition(m.userId, e.target.value as Position)}
               >
                 {Object.entries(POSITION_LABEL).map(([v, label]) => (

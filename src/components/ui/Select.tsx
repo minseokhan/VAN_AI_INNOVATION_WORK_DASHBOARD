@@ -7,7 +7,7 @@ const CHEVRON =
 
 // cn 은 단순 join 이라 클래스 충돌을 못 걷어낸다 — 변형은 덧붙이지 않고 기본 클래스를 통째로 교체한다
 const underlineClass =
-  "rounded-none border-0 border-b border-slate-300 bg-transparent px-0 py-0.5 text-sm focus:border-navy-500 focus:outline-none";
+  "rounded-none border-0 border-b border-slate-300 bg-transparent pl-0 py-0.5 text-sm focus:border-navy-500 focus:outline-none";
 
 export function Select({
   className,
@@ -21,7 +21,7 @@ export function Select({
       className={cn(
         underline ? underlineClass : inputClass,
         "appearance-none bg-no-repeat",
-        underline ? "bg-[right_0_center] pr-4" : "bg-[right_0.75rem_center] pr-9",
+        underline ? "bg-right pr-5" : "bg-[right_0.75rem_center] pr-9",
         className,
       )}
       style={{ backgroundImage: CHEVRON, ...style }}
