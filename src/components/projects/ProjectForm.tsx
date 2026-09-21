@@ -9,6 +9,7 @@ import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { useFormDirty } from "@/components/ui/useFormDirty";
 import { useRetainOnError } from "@/components/ui/useRetainOnError";
 import { PRIORITY_LABEL, PRIORITY_ORDER } from "@/lib/projects/labels";
 import type { ProjectInput } from "@/lib/projects/validation";
@@ -34,9 +35,11 @@ export function ProjectForm({
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(action, {});
   const { formRef, submit } = useRetainOnError(formAction, state);
+  const { dirty, check } = useFormDirty(formRef, state);
+  const isEdit = Object.keys(d).length > 0;
   const errors = state.fieldErrors ?? {};
   return (
-    <form ref={formRef} action={submit} className="max-w-2xl space-y-4">
+    <form ref={formRef} action={submit} onInput={check} onChange={check} className="max-w-2xl space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id="code" label="과제 번호" error={errors.code}>
           <Input id="code" name="code" defaultValue={d.code} placeholder="예: 2-1" required />
@@ -79,10 +82,11 @@ export function ProjectForm({
         <Link href={cancelHref} className={buttonClass({ variant: "secondary" })}>
           취소
         </Link>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || !dirty}>
           {submitLabel}
         </Button>
         {extraActions}
+        {isEdit && !dirty && !pending && <span className="text-xs text-slate-500">변경된 내용이 없습니다</span>}
       </div>
     </form>
   );

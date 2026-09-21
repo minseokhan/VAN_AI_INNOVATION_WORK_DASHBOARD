@@ -1,7 +1,7 @@
 import type { ProjectStatus } from "@prisma/client";
 import { Suspense } from "react";
 import { requireUser } from "@/lib/auth/guards";
-import { filterProjects, sortProjects } from "@/lib/projects/filter";
+import { filterProjects, myProjectIds, sortProjects } from "@/lib/projects/filter";
 import { listProjectsForBoard } from "@/lib/projects/queries";
 import { summarize } from "@/lib/projects/summary";
 import { FilterBar } from "@/components/projects/FilterBar";
@@ -12,12 +12,15 @@ import { PageHeader } from "@/components/ui/PageHeader";
 type Search = { status?: string; category?: string; q?: string };
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Search> }) {
-  await requireUser();
+  const me = await requireUser();
   const { status, category, q } = await searchParams;
   const all = await listProjectsForBoard();
   const s = summarize(all);
   const categories = [...new Set(all.map((p) => p.category))].sort();
-  const projects = sortProjects(filterProjects(all, { status: status as ProjectStatus | "ALL" | undefined, category, q }));
+  const projects = sortProjects(
+    filterProjects(all, { status: status as ProjectStatus | "ALL" | undefined, category, q }),
+    myProjectIds(all, me.id),
+  );
 
   const stats = [
     ["전체", s.total],

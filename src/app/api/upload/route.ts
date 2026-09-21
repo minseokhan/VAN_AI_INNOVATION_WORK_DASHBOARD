@@ -31,6 +31,13 @@ export async function POST(req: Request) {
   if (error) return NextResponse.json({ error }, { status: 400 });
   const name = safeFileName(file.name);
   const path = projectId ? `plan-docs/${projectId}/${name}` : `${isReceipt ? "receipts" : "profiles"}/${user.id}/${name}`;
-  const { url } = await put(path, file, { access: "public", addRandomSuffix: true });
-  return NextResponse.json({ url, name });
+  try {
+    const { url } = await put(path, file, { access: "public", addRandomSuffix: true });
+    return NextResponse.json({ url, name });
+  } catch (e) {
+    // put() 실패를 그대로 던지면 500 HTML 이 돌아가 클라이언트가 이유를 못 읽는다
+    console.error("blob put failed", e);
+    const reason = e instanceof Error ? e.message : "알 수 없는 오류";
+    return NextResponse.json({ error: `파일 저장소 오류: ${reason}` }, { status: 502 });
+  }
 }

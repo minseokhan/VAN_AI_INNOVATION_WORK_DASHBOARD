@@ -8,6 +8,7 @@ import { SidePanel } from "@/components/projects/SidePanel";
 import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { Field } from "@/components/ui/Field";
+import { FileInput } from "@/components/ui/FileInput";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils/cn";
 import { formatDate } from "@/lib/utils/date";
@@ -112,7 +113,7 @@ export function PlanDocs({ projectId, docs, isAdmin }: { projectId: string; docs
                 <Input id="plan-title" name="title" maxLength={100} />
               </Field>
               <Field id="plan-file" label="파일 (20MB 이하)">
-                <input id="plan-file" name="file" type="file" accept={ACCEPT} required className="block w-full text-sm text-slate-700" />
+                <FileInput id="plan-file" name="file" accept={ACCEPT} required />
               </Field>
               {error && <p className="text-xs text-red-700">{error}</p>}
               <div className="flex gap-2">
