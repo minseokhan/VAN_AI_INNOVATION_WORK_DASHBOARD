@@ -6,6 +6,7 @@ import { addExpense } from "@/app/(dashboard)/expenses/actions";
 import type { FormState } from "@/app/(dashboard)/projects/[id]/actions";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
+import { FileInput } from "@/components/ui/FileInput";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
@@ -30,6 +31,9 @@ export function ExpenseForm({ defaultMonth }: { defaultMonth: string }) {
       body.set("kind", "receipt");
       const res = await fetch("/api/upload", { method: "POST", body });
       const json = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (res.status === 503) {
+        return { fieldErrors: { receipt: "파일 저장소가 설정되지 않아 영수증을 올릴 수 없습니다. 금액과 내용만 먼저 등록해 주세요." } };
+      }
       if (!res.ok || !json.url) return { fieldErrors: { receipt: json.error ?? "영수증 업로드에 실패했습니다" } };
       fd.set("receiptUrl", json.url);
     }
@@ -77,8 +81,8 @@ export function ExpenseForm({ defaultMonth }: { defaultMonth: string }) {
       <Field id="ex-note" label="청구 내용 (무엇에, 왜 썼는지)" error={e.note}>
         <Textarea id="ex-note" name="note" rows={3} maxLength={MAX_EXPENSE_NOTE} placeholder="예) 9월 챗봇 프로젝트 임베딩 테스트에 사용. 결제일 9/12, 카드 개인 선결제" />
       </Field>
-      <Field id="ex-receipt" label="영수증 (선택 · 20MB 이하)" error={e.receipt}>
-        <input id="ex-receipt" name="receipt" type="file" accept={ACCEPT} className="block w-full text-sm text-slate-700" />
+      <Field id="ex-receipt" label="영수증 파일 첨부 (선택 · 20MB 이하)" error={e.receipt}>
+        <FileInput id="ex-receipt" name="receipt" accept={ACCEPT} />
       </Field>
       {state.error && <p className="text-xs text-red-700">{state.error}</p>}
       <div className="flex items-center gap-3">

@@ -12,12 +12,10 @@ import {
   parseMonth,
 } from "@/lib/expenses/rules";
 import { formatDate } from "@/lib/utils/date";
-import { DeleteExpenseButton, PrintButton } from "@/components/expenses/ExpenseActions";
+import { DeleteExpenseButton, MonthPicker, PrintButton } from "@/components/expenses/ExpenseActions";
 import { ExpenseForm } from "@/components/expenses/ExpenseForm";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 function Total({ label, amount }: { label: string; amount: number }) {
@@ -65,17 +63,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
           볼 수 있습니다.
         </p>
 
-        <form className="no-print flex flex-wrap items-end gap-2">
-          <div>
-            <label htmlFor="month" className="mb-1 block text-xs font-medium text-slate-600">
-              청구 월
-            </label>
-            <Input id="month" name="month" type="month" defaultValue={month} className="w-44" />
-          </div>
-          <Button type="submit" variant="secondary">
-            보기
-          </Button>
-        </form>
+        <MonthPicker month={month} />
 
         <ExpenseForm defaultMonth={month} />
 
