@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
-import { canDeleteQuestion, filterQuestions, type QuestionFilter } from "@/lib/questions/rules";
+import {
+  canDeleteQuestion,
+  canViewQuestionContent,
+  filterQuestions,
+  maskQuestion,
+  type QuestionFilter,
+} from "@/lib/questions/rules";
 import { cn } from "@/lib/utils/cn";
 import { DigestButton } from "@/components/questions/DigestButton";
 import { QuestionCard } from "@/components/questions/QuestionCard";
@@ -37,7 +43,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
       orderBy: { code: "asc" },
       select: { id: true, code: true, title: true },
     }),
-    isAdmin ? db.question.count({ where: { sentToDiscordAt: null } }) : 0,
+    isAdmin ? db.question.count({ where: { sentToDiscordAt: null, isPrivate: false } }) : 0,
   ]);
 
   const all = questions.map((q) => ({ ...q, project: { ...q.project, memberIds: q.project.members.map((m) => m.userId) } }));
@@ -97,19 +103,23 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
                 key={q.id}
                 isAdmin={isAdmin}
                 canDelete={canDeleteQuestion(user, q)}
-                q={{
-                  id: q.id,
-                  projectId: q.projectId,
-                  projectCode: q.project.code,
-                  projectTitle: q.project.title,
-                  authorName: q.author.name,
-                  content: q.content,
-                  createdAt: q.createdAt,
-                  answer: q.answer,
-                  answererName: q.answeredBy?.name ?? null,
-                  answeredAt: q.answeredAt,
-                  sentToDiscordAt: q.sentToDiscordAt,
-                }}
+                q={maskQuestion(
+                  {
+                    id: q.id,
+                    projectId: q.projectId,
+                    projectCode: q.project.code,
+                    projectTitle: q.project.title,
+                    authorName: q.author.name,
+                    content: q.content,
+                    createdAt: q.createdAt,
+                    answer: q.answer,
+                    answererName: q.answeredBy?.name ?? null,
+                    answeredAt: q.answeredAt,
+                    sentToDiscordAt: q.sentToDiscordAt,
+                    isPrivate: q.isPrivate,
+                  },
+                  canViewQuestionContent(user, q),
+                )}
               />
             ))}
           </ul>

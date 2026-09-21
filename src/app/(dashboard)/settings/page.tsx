@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
-import { cn } from "@/lib/utils/cn";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PortfolioLinks } from "@/components/settings/PortfolioLinks";
 import { AccountForm, PasswordForm, ProfileForm } from "@/components/settings/SettingsForms";
@@ -10,7 +9,7 @@ function Section({ title, description, children }: { title: string; description?
     <section className="rounded-md border border-slate-200 bg-white p-5">
       <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
       {description && <p className="mt-1 mb-4 text-xs text-slate-500">{description}</p>}
-      <div className={cn("max-w-2xl", !description && "mt-4")}>{children}</div>
+      <div className={description ? undefined : "mt-4"}>{children}</div>
     </section>
   );
 }
@@ -36,12 +35,14 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="개인 설정" />
-      <Section title="계정">
-        <AccountForm username={user.username} name={user.name} />
-      </Section>
-      <Section title="비밀번호 변경">
-        <PasswordForm />
-      </Section>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Section title="계정">
+          <AccountForm username={user.username} name={user.name} />
+        </Section>
+        <Section title="비밀번호 변경">
+          <PasswordForm />
+        </Section>
+      </div>
       <Section
         title="역량 프로필"
         description="운영진이 프로젝트를 배치할 때 참고합니다. 부족한 부분도 솔직하게 적어 주세요."

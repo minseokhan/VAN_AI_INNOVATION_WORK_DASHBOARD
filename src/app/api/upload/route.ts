@@ -8,8 +8,9 @@ export async function POST(req: Request) {
   const fd = await req.formData();
   const file = fd.get("file");
   const projectId = String(fd.get("projectId") ?? "");
+  const isReceipt = fd.get("kind") === "receipt";
 
-  // projectId가 있으면 프로젝트 기획안(운영진 전용), 없으면 본인 포트폴리오
+  // projectId가 있으면 프로젝트 기획안(운영진 전용), 없으면 본인 포트폴리오·영수증
   let user: SessionUser;
   try {
     user = projectId ? await requireAdmin() : await requireUser();
@@ -20,14 +21,16 @@ export async function POST(req: Request) {
     }
     throw e;
   }
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  // Vercel Blob 은 BLOB_READ_WRITE_TOKEN 또는 VERCEL_OIDC_TOKEN+BLOB_STORE_ID 로 인증한다.
+  // 최근 생성한 스토어는 토큰을 주입하지 않고 OIDC 만 쓰므로 둘 다 없을 때만 미설정으로 본다
+  if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) {
     return NextResponse.json({ error: "파일 저장소가 설정되지 않았습니다. 링크로 등록해 주세요." }, { status: 503 });
   }
   if (!(file instanceof File)) return NextResponse.json({ error: "파일이 필요합니다" }, { status: 400 });
   const error = validateUploadFile(file.name, file.size);
   if (error) return NextResponse.json({ error }, { status: 400 });
   const name = safeFileName(file.name);
-  const path = projectId ? `plan-docs/${projectId}/${name}` : `profiles/${user.id}/${name}`;
+  const path = projectId ? `plan-docs/${projectId}/${name}` : `${isReceipt ? "receipts" : "profiles"}/${user.id}/${name}`;
   const { url } = await put(path, file, { access: "public", addRandomSuffix: true });
   return NextResponse.json({ url, name });
 }

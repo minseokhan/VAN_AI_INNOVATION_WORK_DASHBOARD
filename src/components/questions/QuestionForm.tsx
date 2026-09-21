@@ -27,6 +27,12 @@ export function QuestionForm({ projects, defaultProjectId }: { projects: Questio
           ))}
         </Select>
       </Field>
+      <Field id="q-visibility" label="공개 범위">
+        <Select id="q-visibility" name="visibility" defaultValue="PUBLIC">
+          <option value="PUBLIC">공개 — 모든 부원이 볼 수 있음</option>
+          <option value="PRIVATE">비공개 — 운영진과 나만 볼 수 있음</option>
+        </Select>
+      </Field>
       <Field id="q-content" label="질문" error={errors.content}>
         <Textarea id="q-content" name="content" rows={3} maxLength={2000} required placeholder="기획 문의, 방향 확인, 피드백 요청 등" />
       </Field>

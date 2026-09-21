@@ -10,7 +10,8 @@ export async function runDigest(now: Date = new Date()): Promise<{ sent: number;
   if (!url) return { sent: 0, skipped: "DISCORD_WEBHOOK_URL 미설정" };
 
   const qs = await db.question.findMany({
-    where: { sentToDiscordAt: null },
+    // 비공개 질문은 부원도 보는 채널로 나가면 안 되므로 제외한다
+    where: { sentToDiscordAt: null, isPrivate: false },
     orderBy: { createdAt: "asc" },
     include: { author: { select: { name: true } }, project: { select: { code: true, title: true } } },
   });

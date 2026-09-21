@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import { useActionState, useState } from "react";
 import { answerQuestion, deleteQuestion } from "@/app/(dashboard)/questions/actions";
 import type { FormState } from "@/app/(dashboard)/projects/[id]/actions";
@@ -24,6 +25,9 @@ export type QuestionItem = {
   answererName: string | null;
   answeredAt: Date | null;
   sentToDiscordAt: Date | null;
+  isPrivate: boolean;
+  /** 볼 권한이 없어 본문이 서버에서 지워진 상태 */
+  masked: boolean;
 };
 
 export function QuestionCard({ q, isAdmin, canDelete }: { q: QuestionItem; isAdmin: boolean; canDelete: boolean }) {
@@ -35,6 +39,26 @@ export function QuestionCard({ q, isAdmin, canDelete }: { q: QuestionItem; isAdm
     return r;
   }, {});
   const { formRef, submit } = useRetainOnError(formAction, state);
+
+  if (q.masked) {
+    return (
+      <li className="rounded-md border border-slate-200 bg-white p-5">
+        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          <Link href={`/projects/${q.projectId}`} className="font-medium text-navy-500 hover:underline">
+            {q.projectCode} · {q.projectTitle}
+          </Link>
+          <span className="inline-flex items-center gap-1 text-slate-400">
+            <Lock size={12} strokeWidth={2} aria-hidden />
+            비공개 질문
+          </span>
+        </div>
+        <p aria-hidden className="select-none text-sm leading-relaxed text-slate-400 blur-[3px]">
+          비공개로 등록된 질문입니다 운영진과 작성자만 내용을 확인할 수 있습니다
+        </p>
+        <p className="sr-only">작성자와 운영진만 볼 수 있는 비공개 질문입니다</p>
+      </li>
+    );
+  }
 
   return (
     <li className="rounded-md border border-slate-200 bg-white p-5">
@@ -48,7 +72,10 @@ export function QuestionCard({ q, isAdmin, canDelete }: { q: QuestionItem; isAdm
           </span>
           {q.sentToDiscordAt && <span className="text-slate-400">디스코드 전송됨 · {formatDate(q.sentToDiscordAt)}</span>}
         </div>
-        {!q.answer && <Badge tone="amber">미답변</Badge>}
+        <div className="flex items-center gap-2">
+          {q.isPrivate && <Badge tone="neutral">비공개</Badge>}
+          {!q.answer && <Badge tone="amber">미답변</Badge>}
+        </div>
       </div>
       <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{q.content}</p>
 
