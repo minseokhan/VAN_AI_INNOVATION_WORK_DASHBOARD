@@ -16,10 +16,12 @@ export function MemberCardView({ member, className }: { member: BoardMember; cla
         <p className="text-xs text-slate-500">{member.codes.length}개 참여</p>
       </div>
       {member.codes.length > 0 && (
-        <div className="flex max-w-[5.5rem] flex-wrap justify-end gap-x-1 text-[11px] leading-tight tabular-nums text-slate-400">
-          {member.codes.map((c) => (
+        // 많이 배치된 멤버 카드만 길어져 목록이 들쭉날쭉해지지 않도록 3개까지만
+        <div className="flex max-w-[5.5rem] flex-wrap justify-end gap-x-1 text-[11px] leading-tight tabular-nums text-slate-500">
+          {member.codes.slice(0, 3).map((c) => (
             <span key={c}>{c}</span>
           ))}
+          {member.codes.length > 3 && <span>+{member.codes.length - 3}</span>}
         </div>
       )}
     </div>

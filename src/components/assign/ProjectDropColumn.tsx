@@ -52,26 +52,32 @@ export function ProjectDropColumn({
       ) : (
         <ul className="space-y-1.5">
           {members.map((m) => (
-            <li key={m.userId} className="flex items-center gap-2">
+            <li key={m.userId} className="group flex items-center gap-2">
               <button
                 type="button"
-                title={m.isLead ? "팀장 해제" : "팀장으로 지정"}
-                aria-label={`${m.name} ${m.isLead ? "팀장 해제" : "팀장으로 지정"}`}
+                aria-label={`${m.name} 팀장`}
                 aria-pressed={m.isLead}
                 onClick={() => onLead(m.userId, !m.isLead)}
-                className="relative shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-500"
+                className="relative shrink-0 cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-500"
               >
-                <Avatar name={m.name} className={cn("transition-shadow", m.isLead && "ring-2 ring-navy-500 ring-offset-1")} />
-                {m.isLead && (
-                  <Crown
-                    size={12}
-                    strokeWidth={2.25}
-                    aria-hidden
-                    className="absolute -right-1 -top-1 rounded-full bg-white text-navy-700"
-                  />
-                )}
+                <Avatar
+                  name={m.name}
+                  title={m.isLead ? `${m.name} 팀장 해제` : `${m.name} 팀장으로 지정`}
+                  className={cn("transition-shadow", m.isLead && "ring-2 ring-navy-500 ring-offset-1")}
+                />
+                {/* 팀장이 없는 프로젝트에도 호버하면 흐린 왕관이 떠서 "누르면 팀장"이 읽힌다 */}
+                <Crown
+                  size={12}
+                  strokeWidth={2.25}
+                  aria-hidden
+                  className={cn(
+                    "absolute -right-1 -top-1 rounded-full bg-white transition-opacity",
+                    m.isLead ? "text-navy-700" : "text-slate-300 opacity-0 group-hover:opacity-100",
+                  )}
+                />
               </button>
               <span className="min-w-0 flex-1 truncate text-sm text-slate-700">{m.name}</span>
+              {m.isLead && <Badge tone="navy">팀장</Badge>}
               <Select
                 aria-label={`${m.name} 포지션`}
                 variant="underline"

@@ -39,12 +39,9 @@ export function canDeleteInquiry(
 
 export type InquiryScope = "ALL" | "MINE" | "UNANSWERED";
 
-export function filterInquiries<T extends { authorId: string; answer: string | null }>(
-  items: T[],
-  scope: InquiryScope,
-  userId: string,
-): T[] {
-  if (scope === "MINE") return items.filter((i) => i.authorId === userId);
-  if (scope === "UNANSWERED") return items.filter((i) => i.answer === null);
-  return items;
+/** 목록 상한(take) 아래에서도 스코프 결과가 정확하도록 DB where 로 내린다 */
+export function inquiryWhere(scope: InquiryScope, userId: string): { authorId?: string; answer?: null } {
+  if (scope === "MINE") return { authorId: userId };
+  if (scope === "UNANSWERED") return { answer: null };
+  return {};
 }

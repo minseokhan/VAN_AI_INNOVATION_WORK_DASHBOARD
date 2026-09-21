@@ -20,7 +20,7 @@ export async function createInquiry(_prev: FormState, fd: FormData): Promise<For
   if (error) return { fieldErrors: { content: error } };
   await db.inquiry.create({ data: { authorId: user.id, kind, content: content.trim() } });
   revalidate();
-  return {};
+  return { ok: true };
 }
 
 export async function answerInquiry(inquiryId: string, _prev: FormState, fd: FormData): Promise<FormState> {

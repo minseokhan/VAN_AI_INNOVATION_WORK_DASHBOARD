@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
-import { canDeleteInquiry, filterInquiries, type InquiryScope } from "@/lib/inquiries/rules";
+import { canDeleteInquiry, inquiryWhere, type InquiryScope } from "@/lib/inquiries/rules";
 import { cn } from "@/lib/utils/cn";
 import { InquiryCard } from "@/components/inquiries/InquiryCard";
 import { InquiryForm } from "@/components/inquiries/InquiryForm";
@@ -21,12 +21,15 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
   const scope = SCOPES.some((s) => s.key === sp.scope) ? (sp.scope as InquiryScope) : "ALL";
   const isAdmin = user.role === "ADMIN";
 
-  const inquiries = await db.inquiry.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { author: { select: { name: true } }, answeredBy: { select: { name: true } } },
-  });
-  const visible = filterInquiries(inquiries, scope, user.id);
-  const unanswered = inquiries.filter((i) => i.answer === null).length;
+  const [visible, unanswered] = await Promise.all([
+    db.inquiry.findMany({
+      where: inquiryWhere(scope, user.id),
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      include: { author: { select: { name: true } }, answeredBy: { select: { name: true } } },
+    }),
+    db.inquiry.count({ where: { answer: null } }),
+  ]);
 
   return (
     <>

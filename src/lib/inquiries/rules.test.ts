@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   INQUIRY_KINDS,
   INQUIRY_KIND_LABEL,
+  INQUIRY_KIND_TONE,
   canDeleteInquiry,
-  filterInquiries,
+  inquiryWhere,
   parseInquiryKind,
   validateInquiryContent,
 } from "./rules";
@@ -52,22 +53,24 @@ describe("canDeleteInquiry", () => {
   });
 });
 
-describe("filterInquiries", () => {
-  const items = [
-    { authorId: "m1", answer: null },
-    { authorId: "m2", answer: "답" },
-    { authorId: "m2", answer: null },
-  ];
-
-  it("ALL은 전부", () => {
-    expect(filterInquiries(items, "ALL", "m1")).toHaveLength(3);
+describe("inquiryWhere", () => {
+  it("ALL은 조건 없음", () => {
+    expect(inquiryWhere("ALL", "m1")).toEqual({});
   });
 
-  it("MINE은 내가 쓴 것만", () => {
-    expect(filterInquiries(items, "MINE", "m1")).toEqual([items[0]]);
+  it("MINE은 작성자", () => {
+    expect(inquiryWhere("MINE", "m1")).toEqual({ authorId: "m1" });
   });
 
-  it("UNANSWERED는 미답변만", () => {
-    expect(filterInquiries(items, "UNANSWERED", "m1")).toEqual([items[0], items[2]]);
+  it("UNANSWERED는 미답변", () => {
+    expect(inquiryWhere("UNANSWERED", "m1")).toEqual({ answer: null });
+  });
+});
+
+// 라벨·톤은 Record 라 컴파일러가 누락을 잡지만, 배열인 INQUIRY_KINDS 는 조용히 빠질 수 있다
+describe("INQUIRY_KINDS", () => {
+  it("모든 종류를 빠짐없이 담는다", () => {
+    expect([...INQUIRY_KINDS].sort()).toEqual(Object.keys(INQUIRY_KIND_LABEL).sort());
+    expect([...INQUIRY_KINDS].sort()).toEqual(Object.keys(INQUIRY_KIND_TONE).sort());
   });
 });

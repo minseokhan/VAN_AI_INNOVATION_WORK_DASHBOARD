@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { POSITION_LABEL, PRIORITY_LABEL, PRIORITY_ORDER, PRIORITY_TONE, STATUS_LABEL, STATUS_TONE, priorityRank } from "./labels";
+import { POSITIONS, POSITION_LABEL, PRIORITY_LABEL, PRIORITY_ORDER, PRIORITY_TONE, STATUS_LABEL, STATUS_TONE, priorityRank } from "./labels";
 
 describe("labels", () => {
   it("상태 라벨/톤", () => {
@@ -22,5 +22,12 @@ describe("labels", () => {
     expect(priorityRank("중장기")).toBe(5);
     expect(priorityRank("???")).toBe(6);
     expect(priorityRank("")).toBe(6);
+  });
+});
+
+// POSITIONS 는 배열이라 Position 에 값이 추가돼도 컴파일 에러가 나지 않는다 — 누락되면 설정 드롭다운에서 조용히 사라진다
+describe("POSITIONS", () => {
+  it("모든 포지션을 빠짐없이 담는다", () => {
+    expect([...POSITIONS].sort()).toEqual(Object.keys(POSITION_LABEL).sort());
   });
 });

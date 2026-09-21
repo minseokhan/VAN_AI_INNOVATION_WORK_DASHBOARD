@@ -31,9 +31,12 @@ export function InquiryForm() {
         <Textarea id="inq-content" name="content" rows={3} maxLength={MAX_INQUIRY} required placeholder={PLACEHOLDER} />
       </Field>
       {state.error && <p className="text-xs text-red-700">{state.error}</p>}
-      <Button type="submit" disabled={pending}>
-        남기기
-      </Button>
+      <div className="flex items-center gap-3">
+        <Button type="submit" disabled={pending}>
+          남기기
+        </Button>
+        {state.ok && <span className="text-xs text-green-700">등록되었습니다</span>}
+      </div>
     </form>
   );
 }

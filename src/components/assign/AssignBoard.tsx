@@ -37,9 +37,14 @@ function apply(projects: BoardProject[], patch: Patch): BoardProject[] {
         return { ...p, members: p.members.filter((m) => m.userId !== patch.userId) };
       case "position":
         return { ...p, members: p.members.map((m) => (m.userId === patch.userId ? { ...m, position: patch.position } : m)) };
-      // 팀장은 프로젝트당 한 명 — 나머지는 전부 내린다
+      // 지정은 나머지를 전부 내리고, 해제는 대상만 내린다 (서버의 setLead 와 같은 규칙)
       case "lead":
-        return { ...p, members: p.members.map((m) => ({ ...m, isLead: patch.isLead && m.userId === patch.userId })) };
+        return {
+          ...p,
+          members: p.members.map((m) =>
+            m.userId === patch.userId ? { ...m, isLead: patch.isLead } : patch.isLead ? { ...m, isLead: false } : m,
+          ),
+        };
     }
   });
 }
@@ -87,7 +92,7 @@ export function AssignBoard({ members, projects }: { members: BoardMember[]; pro
             ))}
           </div>
         </aside>
-        <div className="grid min-w-0 flex-1 content-start items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-w-0 flex-1 content-start items-start gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {optimistic.map((p) => (
             <ProjectDropColumn
               key={p.id}

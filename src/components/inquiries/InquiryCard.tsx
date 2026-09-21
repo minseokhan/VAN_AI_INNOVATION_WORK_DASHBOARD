@@ -65,6 +65,7 @@ export function InquiryCard({ item, isAdmin, canDelete }: { item: InquiryItem; i
               rows={3}
               maxLength={4000}
               defaultValue={item.answer ?? ""}
+              autoFocus
               required
             />
           </Field>

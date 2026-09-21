@@ -18,6 +18,7 @@ export default async function AssignPage({ searchParams }: { searchParams: Promi
     db.user.findMany({
       where: { approved: true },
       orderBy: { name: "asc" },
+      // 보드에 안 보이는 완료 프로젝트도 포함한다 — 부하를 볼 때 기준은 총 참여 수다
       select: {
         id: true,
         name: true,

@@ -12,7 +12,7 @@ type Item = { href: string; label: string; icon: LucideIcon };
 
 const MAIN: Item[] = [
   { href: "/", label: "대시보드", icon: LayoutGrid },
-  { href: "/questions", label: "질문", icon: MessageSquare },
+  { href: "/questions", label: "프로젝트 질문", icon: MessageSquare },
   { href: "/inquiries", label: "문의 · 건의", icon: Lightbulb },
   { href: "/settings", label: "개인 설정", icon: Settings },
 ];
