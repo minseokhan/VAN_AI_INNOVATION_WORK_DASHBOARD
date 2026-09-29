@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutGrid, Lightbulb, MessageSquare, Plus, Receipt, Settings, UserCheck, Users, type LucideIcon } from "lucide-react";
+import { FileText, LayoutGrid, Lightbulb, Megaphone, MessageSquare, Plus, Receipt, Settings, UserCheck, Users, type LucideIcon } from "lucide-react";
 import { logout } from "@/app/(auth)/actions";
 import type { SessionUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils/cn";
 import { Avatar } from "@/components/ui/Avatar";
 
 type Item = { href: string; label: string; icon: LucideIcon };
+
+/** 부원에겐 일반 메뉴, 운영진에겐 운영 섹션 — 운영진은 여기서 작성·수정·삭제까지 한다 */
+const NOTICE: Item = { href: "/notices", label: "공지", icon: Megaphone };
 
 const MAIN: Item[] = [
   { href: "/", label: "대시보드", icon: LayoutGrid },
@@ -35,6 +38,7 @@ export function Sidebar({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const isAdmin = user.role === "ADMIN";
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   const renderItem = ({ href, label, icon: Icon }: Item) => (
@@ -63,11 +67,11 @@ export function Sidebar({
     <aside className="flex h-full w-60 flex-col bg-navy-900 text-white">
       <div className="px-5 py-5 text-base font-semibold tracking-tight">VAN AI 혁신부</div>
       <nav className="flex-1 space-y-1 px-3">
-        {MAIN.map(renderItem)}
-        {user.role === "ADMIN" && (
+        {(isAdmin ? MAIN : [MAIN[0], NOTICE, ...MAIN.slice(1)]).map(renderItem)}
+        {isAdmin && (
           <>
             <div className="px-3 pb-1 pt-5 text-xs font-medium uppercase text-white/50">운영</div>
-            {ADMIN.map(renderItem)}
+            {[NOTICE, ...ADMIN].map(renderItem)}
           </>
         )}
       </nav>
