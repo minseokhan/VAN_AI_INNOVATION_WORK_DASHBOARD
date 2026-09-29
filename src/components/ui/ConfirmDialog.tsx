@@ -11,6 +11,7 @@ export function ConfirmDialog({
   confirmLabel,
   onConfirm,
   variant = "danger",
+  size = "md",
 }: {
   label: string;
   title: string;
@@ -18,12 +19,13 @@ export function ConfirmDialog({
   confirmLabel: string;
   onConfirm: () => void | Promise<unknown>;
   variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [pending, startTransition] = useTransition();
   return (
     <>
-      <Button variant={variant} onClick={() => ref.current?.showModal()}>
+      <Button variant={variant} size={size} onClick={() => ref.current?.showModal()}>
         {label}
       </Button>
       <dialog
@@ -37,7 +39,16 @@ export function ConfirmDialog({
           <Button variant="secondary" disabled={pending} onClick={() => ref.current?.close()}>
             취소
           </Button>
-          <Button variant={variant} disabled={pending} onClick={() => startTransition(async () => { await onConfirm(); })}>
+          <Button
+            variant={variant}
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => {
+                await onConfirm();
+                ref.current?.close();
+              })
+            }
+          >
             {pending ? "삭제 중…" : confirmLabel}
           </Button>
         </div>

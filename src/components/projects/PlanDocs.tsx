@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { addPlanDoc, deletePlanDoc } from "@/app/(dashboard)/projects/[id]/actions";
 import { SidePanel } from "@/components/projects/SidePanel";
 import { Button } from "@/components/ui/Button";
-import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Field } from "@/components/ui/Field";
 import { FileInput } from "@/components/ui/FileInput";
 import { Input } from "@/components/ui/Input";
@@ -84,10 +84,11 @@ export function PlanDocs({ projectId, docs, isAdmin }: { projectId: string; docs
                   </p>
                 </div>
                 {isAdmin && (
-                  <ConfirmButton
+                  <ConfirmDialog
                     label="삭제"
+                    title="기획안 삭제"
+                    message={`"${d.title}"을(를) 삭제할까요? 되돌릴 수 없습니다.`}
                     confirmLabel="삭제"
-                    message="이 기획안을 삭제할까요?"
                     size="sm"
                     onConfirm={() => deletePlanDoc(projectId, d.id).then((r) => setError(r.error ?? null))}
                   />
