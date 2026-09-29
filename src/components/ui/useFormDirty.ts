@@ -13,27 +13,37 @@ function changed(el: Element): boolean {
   return false;
 }
 
+function isDirty(form: HTMLFormElement | null): boolean {
+  return form !== null && [...form.elements].some(changed);
+}
+
 /**
- * 폼의 현재 값이 defaultValue 와 다른지 추적한다. 바뀐 게 없으면 저장 버튼을 막기 위한 것.
- * 제출이 끝나면(성공이든 실패든) 다시 계산한다 — 성공 시 React 19 가 폼을 리셋하고,
- * 실패 시 useRetainOnError 가 값을 되돌려 놓기 때문.
+ * 바뀐 게 없는데 저장을 누르면 서버에 쓰지 않고 "변경된 내용이 없습니다"를 띄운다.
+ * 버튼을 미리 막지는 않는다 — 누르기 전까지 안내 문구가 떠 있으면 방해가 된다.
  *
- *   const { dirty, check } = useFormDirty(formRef, state);
- *   <form ref={formRef} action={submit} onInput={check} onChange={check}>
+ *   const { noChange, check, guard } = useFormDirty(formRef, state);
+ *   <form ref={formRef} action={guard(submit)} onInput={check} onChange={check}>
+ *   {noChange && <span>변경된 내용이 없습니다</span>}
  */
 export function useFormDirty(formRef: RefObject<HTMLFormElement | null>, state?: unknown) {
-  const [dirty, setDirty] = useState(false);
+  const [noChange, setNoChange] = useState(false);
 
+  // 값을 고치는 순간 안내를 거둔다
   const check = useCallback(() => {
-    const form = formRef.current;
-    setDirty(form ? [...form.elements].some(changed) : false);
+    if (isDirty(formRef.current)) setNoChange(false);
   }, [formRef]);
 
-  // 제출 결과로 폼 값이 바뀌므로 렌더 후 한 번 더 확인한다
-  useEffect(() => {
-    const id = requestAnimationFrame(check);
-    return () => cancelAnimationFrame(id);
-  }, [check, state]);
+  const guard = useCallback(
+    (run: (fd: FormData) => void) => (fd: FormData) => {
+      if (!isDirty(formRef.current)) return setNoChange(true);
+      setNoChange(false);
+      run(fd);
+    },
+    [formRef],
+  );
 
-  return { dirty, check };
+  // 서버 응답이 오면(저장 성공·검증 실패) 이전 안내는 의미가 없다
+  useEffect(() => setNoChange(false), [state]);
+
+  return { noChange, check, guard };
 }

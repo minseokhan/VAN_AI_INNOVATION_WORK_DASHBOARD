@@ -15,7 +15,7 @@ export default async function MembersPage() {
     throw e; // requireUser의 NEXT_REDIRECT 등은 그대로 전파
   }
   const users = await db.user.findMany({
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ role: "asc" }, { createdAt: "asc" }], // enum 선언 순서(ADMIN → MEMBER)대로 운영진이 위
     select: {
       id: true, username: true, name: true, role: true, approved: true, createdAt: true, level: true, adminLevel: true,
       memberships: { select: { project: { select: { code: true } } }, orderBy: { project: { code: "asc" } } },

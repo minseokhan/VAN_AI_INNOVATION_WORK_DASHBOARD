@@ -88,6 +88,7 @@ model User {
   inquiries        Inquiry[]       @relation("InquiryAuthor")
   inquiryAnswers   Inquiry[]       @relation("InquiryAnsweredBy")
   expenses         ExpenseClaim[]
+  notices          Notice[]
 }
 
 model Project {
@@ -256,4 +257,18 @@ model Question {
 
   @@index([projectId])
   @@index([sentToDiscordAt])
+}
+
+/// 운영진이 올리는 전체 공지. 부원은 읽기만 한다
+model Notice {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
 }

@@ -16,20 +16,20 @@ import { POSITIONS, POSITION_LABEL } from "@/lib/projects/labels";
 function SaveRow({
   state,
   pending,
-  dirty,
+  noChange,
   label = "저장",
 }: {
   state: FormState;
   pending: boolean;
-  dirty: boolean;
+  noChange: boolean;
   label?: string;
 }) {
   return (
     <div className="flex items-center gap-3">
-      <Button type="submit" size="sm" disabled={pending || !dirty}>
+      <Button type="submit" size="sm" disabled={pending}>
         {pending ? "저장 중…" : label}
       </Button>
-      {!dirty && !pending && !state.ok && <span className="text-xs text-slate-500">변경된 내용이 없습니다</span>}
+      {noChange && <span className="text-xs text-slate-500">변경된 내용이 없습니다</span>}
       {state.ok && <span className="text-xs text-green-700">저장되었습니다</span>}
       {state.error && <span className="text-xs text-red-700">{state.error}</span>}
     </div>
@@ -39,17 +39,17 @@ function SaveRow({
 export function AccountForm({ username, name }: { username: string; name: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateAccount, {});
   const { formRef, submit } = useRetainOnError(action, state);
-  const { dirty, check } = useFormDirty(formRef, state);
+  const { noChange, check, guard } = useFormDirty(formRef, state);
   const e = state.fieldErrors ?? {};
   return (
-    <form ref={formRef} action={submit} onInput={check} onChange={check} className="space-y-4">
+    <form ref={formRef} action={guard(submit)} onInput={check} onChange={check} className="space-y-4">
       <Field id="name" label="이름" error={e.name}>
         <Input id="name" name="name" defaultValue={name} maxLength={20} required />
       </Field>
       <Field id="username" label="아이디 (영문 소문자·숫자·_ 3~20자)" error={e.username}>
         <Input id="username" name="username" defaultValue={username} autoComplete="username" required />
       </Field>
-      <SaveRow state={state} pending={pending} dirty={dirty} />
+      <SaveRow state={state} pending={pending} noChange={noChange} />
     </form>
   );
 }
@@ -57,10 +57,10 @@ export function AccountForm({ username, name }: { username: string; name: string
 export function PasswordForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(changePassword, {});
   const formRef = useRef<HTMLFormElement>(null);
-  const { dirty, check } = useFormDirty(formRef, state);
+  const { noChange, check, guard } = useFormDirty(formRef, state);
   const e = state.fieldErrors ?? {};
   return (
-    <form ref={formRef} action={action} onInput={check} onChange={check} className="space-y-4">
+    <form ref={formRef} action={guard(action)} onInput={check} onChange={check} className="space-y-4">
       <Field id="current" label="현재 비밀번호" error={e.current}>
         <Input id="current" name="current" type="password" autoComplete="current-password" required />
       </Field>
@@ -70,7 +70,7 @@ export function PasswordForm() {
       <Field id="confirm" label="새 비밀번호 확인" error={e.confirm}>
         <Input id="confirm" name="confirm" type="password" autoComplete="new-password" required />
       </Field>
-      <SaveRow state={state} pending={pending} dirty={dirty} label="비밀번호 변경" />
+      <SaveRow state={state} pending={pending} noChange={noChange} label="비밀번호 변경" />
     </form>
   );
 }
@@ -87,10 +87,10 @@ export type ProfileValues = {
 export function ProfileForm({ values }: { values: ProfileValues }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateProfile, {});
   const { formRef, submit } = useRetainOnError(action, state);
-  const { dirty, check } = useFormDirty(formRef, state);
+  const { noChange, check, guard } = useFormDirty(formRef, state);
   const e = state.fieldErrors ?? {};
   return (
-    <form ref={formRef} action={submit} onInput={check} onChange={check} className="space-y-4">
+    <form ref={formRef} action={guard(submit)} onInput={check} onChange={check} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id="level" label="지금 수준" error={e.level}>
           <Select id="level" name="level" defaultValue={values.level ?? ""}>
@@ -150,7 +150,7 @@ export function ProfileForm({ values }: { values: ProfileValues }) {
           placeholder="해 본 프로젝트, 참여했던 활동, 배우고 싶은 것 등을 자유롭게 적어 주세요"
         />
       </Field>
-      <SaveRow state={state} pending={pending} dirty={dirty} />
+      <SaveRow state={state} pending={pending} noChange={noChange} />
     </form>
   );
 }

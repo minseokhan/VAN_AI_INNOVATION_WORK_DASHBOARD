@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canChangeRole, canRemoveUser } from "./rules";
+import { canChangeRole, canDeleteMember, canRemoveUser } from "./rules";
 
 const admin = { id: "a1", role: "ADMIN" };
 const member = { id: "m1", role: "MEMBER" };
@@ -46,5 +46,24 @@ describe("canRemoveUser", () => {
   it("승인된 사용자 삭제 불가", () => {
     const r = canRemoveUser(admin, { id: "u1", approved: true });
     expect(r).toEqual({ ok: false, reason: expect.stringContaining("승인") });
+  });
+});
+
+describe("canDeleteMember", () => {
+  it("ADMIN이 다른 멤버를 삭제할 수 있다", () => {
+    expect(canDeleteMember(admin, { id: "m1" })).toEqual({ ok: true });
+  });
+
+  it("ADMIN이 다른 운영진을 삭제할 수 있다", () => {
+    expect(canDeleteMember(admin, { id: "a2" })).toEqual({ ok: true });
+  });
+
+  it("actor가 ADMIN이 아니면 불가", () => {
+    expect(canDeleteMember(member, { id: "m2" }).ok).toBe(false);
+  });
+
+  it("본인 삭제 불가", () => {
+    const r = canDeleteMember(admin, { id: "a1" });
+    expect(r).toEqual({ ok: false, reason: expect.stringContaining("본인") });
   });
 });

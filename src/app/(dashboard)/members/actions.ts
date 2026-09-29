@@ -1,10 +1,11 @@
 "use server";
 
 import type { SkillLevel } from "@prisma/client";
+import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
-import { canChangeRole, canRemoveUser } from "@/lib/members/rules";
+import { canChangeRole, canDeleteMember, canRemoveUser } from "@/lib/members/rules";
 import { LEVELS } from "@/lib/profile/validation";
 import { calcProgress } from "@/lib/projects/progress";
 
@@ -31,6 +32,33 @@ export async function rejectUser(userId: string): Promise<{ error?: string }> {
   const r = canRemoveUser(actor, target);
   if (!r.ok) return { error: r.reason };
   await db.user.delete({ where: { id: userId } });
+  revalidate();
+  return {};
+}
+
+/** 승인된 멤버 삭제. 작성한 글·파일은 스키마의 onDelete: Cascade 로 함께 지워진다 */
+export async function deleteMember(userId: string): Promise<{ error?: string }> {
+  const actor = await requireAdmin();
+  const target = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      uploadedPlanDocs: { where: { kind: "FILE" }, select: { url: true } },
+      profileLinks: { where: { kind: "FILE" }, select: { url: true } },
+      expenses: { where: { receiptUrl: { not: null } }, select: { receiptUrl: true } },
+    },
+  });
+  if (!target) return NOT_FOUND;
+  const r = canDeleteMember(actor, target);
+  if (!r.ok) return { error: r.reason };
+  await db.user.delete({ where: { id: userId } });
+  // Blob 정리는 실패해도 삭제 결과를 뒤집지 않는다
+  const urls = [
+    ...target.uploadedPlanDocs.map((d) => d.url),
+    ...target.profileLinks.map((l) => l.url),
+    ...target.expenses.flatMap((e) => (e.receiptUrl ? [e.receiptUrl] : [])),
+  ];
+  if (urls.length > 0) await del(urls).catch(() => {});
   revalidate();
   return {};
 }
