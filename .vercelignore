@@ -1,0 +1,4 @@
+# vercel CLI 직접 배포(`vercel deploy`)는 .gitignore 를 보지 않는다.
+# 로컬 .env 가 배포 번들에 그대로 올라가므로 여기서 막는다.
+.env*
+!.env.example

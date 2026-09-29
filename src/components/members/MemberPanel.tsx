@@ -3,11 +3,12 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { getMemberDetail, setMemberLevel, setRole, type MemberDetail } from "@/app/(dashboard)/members/actions";
+import { deleteMember, getMemberDetail, setMemberLevel, setRole, type MemberDetail } from "@/app/(dashboard)/members/actions";
 import { ProfileView } from "@/components/settings/ProfileView";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Select } from "@/components/ui/Select";
 import { LEVELS, LEVEL_HINT, LEVEL_LABEL } from "@/lib/profile/validation";
@@ -54,7 +55,8 @@ export function MemberPanel({
   }, [load]);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    // 삭제 확인 모달이 떠 있을 때의 Esc 는 모달만 닫는다
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && !document.querySelector("dialog[open]") && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
@@ -91,7 +93,7 @@ export function MemberPanel({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="absolute inset-y-0 right-0 flex w-full max-w-md animate-[slide-in-right_200ms_ease-out] flex-col border-l border-slate-200 bg-white shadow-xl outline-none"
+        className="absolute inset-y-0 right-0 flex w-full max-w-xl animate-[slide-in-right_200ms_ease-out] flex-col border-l border-slate-200 bg-white shadow-xl outline-none"
       >
         <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4">
           {detail ? (
@@ -177,6 +179,29 @@ export function MemberPanel({
             </section>
 
             <ProfileView data={detail} />
+
+            {!isSelf && (
+              <section className="border-t border-slate-200 pt-5">
+                <ConfirmDialog
+                  label="회원 삭제"
+                  size="sm"
+                  title="회원을 삭제할까요?"
+                  message={`"${detail.name}" 계정과 이 회원이 작성한 주간 보고·질문·문의·비용 청구·공지, 올린 기획안·포트폴리오가 모두 삭제되며 되돌릴 수 없습니다.`}
+                  confirmLabel="삭제"
+                  onConfirm={async () => {
+                    let res: { error?: string };
+                    try {
+                      res = await deleteMember(detail.id);
+                    } catch {
+                      res = { error: "권한이 없거나 삭제하지 못했습니다" };
+                    }
+                    if (res.error) return setError(res.error);
+                    router.refresh();
+                    onClose();
+                  }}
+                />
+              </section>
+            )}
           </div>
         )}
       </div>
