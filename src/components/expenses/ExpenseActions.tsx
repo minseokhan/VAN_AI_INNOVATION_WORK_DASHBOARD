@@ -5,23 +5,23 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteExpense } from "@/app/(dashboard)/expenses/actions";
 import { Button } from "@/components/ui/Button";
-import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Input } from "@/components/ui/Input";
 
 /** 월을 고르면 바로 그 달로 이동한다 */
-export function MonthPicker({ month }: { month: string }) {
+export function MonthPicker({ month, path = "/expenses", label = "청구 월" }: { month: string; path?: string; label?: string }) {
   const router = useRouter();
   return (
     <div className="no-print">
       <label htmlFor="month" className="mb-1 block text-xs font-medium text-slate-600">
-        청구 월
+        {label}
       </label>
       <Input
         id="month"
         type="month"
         defaultValue={month}
         className="w-44"
-        onChange={(e) => e.target.value && router.replace(`/expenses?month=${e.target.value}`)}
+        onChange={(e) => e.target.value && router.replace(`${path}?month=${e.target.value}`)}
       />
     </div>
   );
@@ -31,10 +31,11 @@ export function DeleteExpenseButton({ id, title }: { id: string; title: string }
   const [error, setError] = useState<string | null>(null);
   return (
     <div className="no-print">
-      <ConfirmButton
+      <ConfirmDialog
         label="삭제"
+        title="비용 청구 삭제"
+        message={`"${title}" 청구를 삭제할까요? 되돌릴 수 없습니다.`}
         confirmLabel="삭제"
-        message={`"${title}" 청구를 삭제할까요?`}
         size="sm"
         onConfirm={() => deleteExpense(id).then((r) => setError(r.error ?? null))}
       />

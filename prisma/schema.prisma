@@ -89,6 +89,7 @@ model User {
   inquiryAnswers   Inquiry[]       @relation("InquiryAnsweredBy")
   expenses         ExpenseClaim[]
   notices          Notice[]
+  meetingMinutes   MeetingMinute[]
 }
 
 model Project {
@@ -271,4 +272,18 @@ model Notice {
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
+}
+
+/// 운영진이 올리는 주간 회의록 링크(구글 독스 등). 부원은 읽기만 한다
+model MeetingMinute {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  title     String
+  fileUrl   String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([date])
 }

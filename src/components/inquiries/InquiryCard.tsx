@@ -6,7 +6,7 @@ import { answerInquiry, deleteInquiry } from "@/app/(dashboard)/inquiries/action
 import type { FormState } from "@/app/(dashboard)/projects/[id]/actions";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Field } from "@/components/ui/Field";
 import { Textarea } from "@/components/ui/Textarea";
 import { useRetainOnError } from "@/components/ui/useRetainOnError";
@@ -89,10 +89,11 @@ export function InquiryCard({ item, isAdmin, canDelete }: { item: InquiryItem; i
             </Button>
           )}
           {canDelete && (
-            <ConfirmButton
+            <ConfirmDialog
               label="삭제"
+              title="문의 삭제"
+              message="이 문의를 삭제할까요? 되돌릴 수 없습니다."
               confirmLabel="삭제"
-              message="이 문의를 삭제할까요?"
               size="sm"
               onConfirm={() => deleteInquiry(item.id).then((r) => setError(r.error ?? null))}
             />
