@@ -64,8 +64,8 @@ export function DeleteMinuteButton({ id, title }: { id: string; title: string })
     <div>
       <ConfirmDialog
         label="삭제"
-        title="회의록을 삭제할까요?"
-        message={`"${title}" 회의록이 목록에서 삭제되며 되돌릴 수 없습니다. 링크된 원본 문서는 지워지지 않습니다.`}
+        title="회의록 삭제"
+        message={`"${title}"을(를) 삭제할까요? 되돌릴 수 없습니다. 링크된 원본 문서는 지워지지 않습니다.`}
         confirmLabel="삭제"
         size="sm"
         onConfirm={() => deleteMinute(id).then((r) => setError(r.error ?? null))}

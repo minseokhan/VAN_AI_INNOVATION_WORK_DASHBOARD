@@ -5,7 +5,7 @@ import { approveUser, rejectUser } from "@/app/(dashboard)/members/actions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { LEVEL_LABEL } from "@/lib/profile/validation";
 import { formatDate } from "@/lib/utils/date";
 
@@ -54,10 +54,11 @@ export function PendingCard({ user }: { user: Pick<Member, "id" | "username" | "
         <Button size="sm" disabled={pending} onClick={() => run(() => approveUser(user.id))}>
           승인
         </Button>
-        <ConfirmButton
+        <ConfirmDialog
           label="거절"
-          confirmLabel="거절 확인"
-          message="가입 요청을 삭제합니다"
+          title="가입 요청 거절"
+          message={`"${user.name}"의 가입 요청을 거절하고 삭제할까요? 되돌릴 수 없습니다.`}
+          confirmLabel="거절"
           size="sm"
           onConfirm={() => run(() => rejectUser(user.id))}
         />
