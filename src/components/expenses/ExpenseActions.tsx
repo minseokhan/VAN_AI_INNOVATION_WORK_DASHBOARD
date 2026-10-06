@@ -9,19 +9,19 @@ import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { Input } from "@/components/ui/Input";
 
 /** 월을 고르면 바로 그 달로 이동한다 */
-export function MonthPicker({ month }: { month: string }) {
+export function MonthPicker({ month, path = "/expenses", label = "청구 월" }: { month: string; path?: string; label?: string }) {
   const router = useRouter();
   return (
     <div className="no-print">
       <label htmlFor="month" className="mb-1 block text-xs font-medium text-slate-600">
-        청구 월
+        {label}
       </label>
       <Input
         id="month"
         type="month"
         defaultValue={month}
         className="w-44"
-        onChange={(e) => e.target.value && router.replace(`/expenses?month=${e.target.value}`)}
+        onChange={(e) => e.target.value && router.replace(`${path}?month=${e.target.value}`)}
       />
     </div>
   );
