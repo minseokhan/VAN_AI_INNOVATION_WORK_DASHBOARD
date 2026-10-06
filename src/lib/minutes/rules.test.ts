@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { MAX_MINUTE_TITLE, monthRange, validateMinute } from "./rules";
 
 describe("validateMinute", () => {
-  const ok = { date: "2026-10-06", title: "10월 1주차 정기 회의", fileUrl: "https://blob.example.com/a.pdf" };
+  const ok = { date: "2026-10-06", title: "10월 1주차 정기 회의", fileUrl: "https://docs.google.com/document/d/abc/edit" };
 
   it("날짜·제목·파일이 있으면 통과하고 날짜를 UTC 자정 Date로 바꾼다", () => {
     expect(validateMinute({ ...ok, title: "  제목  " })).toEqual({
@@ -24,9 +24,11 @@ describe("validateMinute", () => {
     });
   });
 
-  it("파일 주소가 없거나 https가 아니면 에러", () => {
-    expect(validateMinute({ ...ok, fileUrl: "" })).toEqual({ ok: false, errors: { file: "회의록 파일을 첨부하세요" } });
-    expect(validateMinute({ ...ok, fileUrl: "javascript:alert(1)" })).toEqual({ ok: false, errors: { file: "회의록 파일을 첨부하세요" } });
+  it("링크가 없거나 https가 아니면 에러", () => {
+    const errors = { fileUrl: "회의록 링크를 https:// 주소로 입력하세요" };
+    expect(validateMinute({ ...ok, fileUrl: "" })).toEqual({ ok: false, errors });
+    expect(validateMinute({ ...ok, fileUrl: "docs.google.com/document/d/x" })).toEqual({ ok: false, errors });
+    expect(validateMinute({ ...ok, fileUrl: "javascript:alert(1)" })).toEqual({ ok: false, errors });
   });
 });
 

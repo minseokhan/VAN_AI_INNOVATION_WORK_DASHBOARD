@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
 import { currentMonth, formatMonth, parseMonth } from "@/lib/expenses/rules";
@@ -50,8 +50,8 @@ export default async function MinutesPage({ searchParams }: { searchParams: Prom
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-sm text-navy-500 hover:underline"
                   >
-                    <FileText size={14} strokeWidth={1.75} aria-hidden />
-                    파일 열기
+                    <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
+                    회의록 열기
                   </a>
                   {isAdmin && <DeleteMinuteButton id={m.id} title={m.title} />}
                 </li>

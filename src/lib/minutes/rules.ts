@@ -5,7 +5,7 @@ export const MAX_MINUTE_TITLE = 100;
 export type MinuteRawInput = { date: string; title: string; fileUrl: string };
 export type MinuteResult =
   | { ok: true; value: { date: Date; title: string; fileUrl: string } }
-  | { ok: false; errors: Partial<Record<"date" | "title" | "file", string>> };
+  | { ok: false; errors: Partial<Record<"date" | "title" | "fileUrl", string>> };
 
 /** "YYYY-MM-DD" → UTC 자정 Date (@db.Date 컬럼용). 없는 날짜는 null */
 function parseDay(v: string): Date | null {
@@ -15,7 +15,7 @@ function parseDay(v: string): Date | null {
 }
 
 export function validateMinute(input: MinuteRawInput): MinuteResult {
-  const errors: Partial<Record<"date" | "title" | "file", string>> = {};
+  const errors: Partial<Record<"date" | "title" | "fileUrl", string>> = {};
   const date = parseDay(input.date.trim());
   if (!date) errors.date = "회의 날짜를 선택하세요";
 
@@ -24,7 +24,7 @@ export function validateMinute(input: MinuteRawInput): MinuteResult {
   else if (title.length > MAX_MINUTE_TITLE) errors.title = `제목은 ${MAX_MINUTE_TITLE}자 이하로 입력하세요`;
 
   const fileUrl = input.fileUrl.trim();
-  if (!fileUrl.startsWith("https://")) errors.file = "회의록 파일을 첨부하세요";
+  if (!fileUrl.startsWith("https://")) errors.fileUrl = "회의록 링크를 https:// 주소로 입력하세요";
 
   if (Object.keys(errors).length) return { ok: false, errors };
   return { ok: true, value: { date: date!, title, fileUrl } };

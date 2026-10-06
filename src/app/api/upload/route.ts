@@ -9,12 +9,11 @@ export async function POST(req: Request) {
   const file = fd.get("file");
   const projectId = String(fd.get("projectId") ?? "");
   const isReceipt = fd.get("kind") === "receipt";
-  const isMinutes = fd.get("kind") === "minutes";
 
-  // projectId가 있으면 프로젝트 기획안, kind=minutes면 회의록(둘 다 운영진 전용), 없으면 본인 포트폴리오·영수증
+  // projectId가 있으면 프로젝트 기획안(운영진 전용), 없으면 본인 포트폴리오·영수증
   let user: SessionUser;
   try {
-    user = projectId || isMinutes ? await requireAdmin() : await requireUser();
+    user = projectId ? await requireAdmin() : await requireUser();
   } catch (e) {
     if (e instanceof Error && e.message === "FORBIDDEN") return NextResponse.json({ error: "운영진만 업로드할 수 있습니다" }, { status: 403 });
     if (typeof (e as { digest?: string }).digest === "string" && (e as { digest: string }).digest.startsWith("NEXT_REDIRECT")) {
@@ -31,11 +30,7 @@ export async function POST(req: Request) {
   const error = validateUploadFile(file.name, file.size);
   if (error) return NextResponse.json({ error }, { status: 400 });
   const name = safeFileName(file.name);
-  const path = projectId
-    ? `plan-docs/${projectId}/${name}`
-    : isMinutes
-      ? `minutes/${name}`
-      : `${isReceipt ? "receipts" : "profiles"}/${user.id}/${name}`;
+  const path = projectId ? `plan-docs/${projectId}/${name}` : `${isReceipt ? "receipts" : "profiles"}/${user.id}/${name}`;
   try {
     const { url } = await put(path, file, { access: "public", addRandomSuffix: true });
     return NextResponse.json({ url, name });
