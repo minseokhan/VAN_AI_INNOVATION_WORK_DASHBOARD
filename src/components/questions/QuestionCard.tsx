@@ -7,7 +7,7 @@ import { answerQuestion, deleteQuestion } from "@/app/(dashboard)/questions/acti
 import type { FormState } from "@/app/(dashboard)/projects/[id]/actions";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Field } from "@/components/ui/Field";
 import { Textarea } from "@/components/ui/Textarea";
 import { useRetainOnError } from "@/components/ui/useRetainOnError";
@@ -113,10 +113,11 @@ export function QuestionCard({ q, isAdmin, canDelete }: { q: QuestionItem; isAdm
             </Button>
           )}
           {canDelete && (
-            <ConfirmButton
+            <ConfirmDialog
               label="삭제"
+              title="질문 삭제"
+              message="이 질문을 삭제할까요? 되돌릴 수 없습니다."
               confirmLabel="삭제"
-              message="이 질문을 삭제할까요?"
               size="sm"
               onConfirm={() => deleteQuestion(q.id).then((r) => setError(r.error ?? null))}
             />

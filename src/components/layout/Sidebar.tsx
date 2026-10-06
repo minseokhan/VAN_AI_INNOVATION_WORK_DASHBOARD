@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutGrid, Lightbulb, Megaphone, MessageSquare, Plus, Receipt, Settings, UserCheck, Users, type LucideIcon } from "lucide-react";
+import { FileText, LayoutGrid, Lightbulb, Megaphone, MessageSquare, NotebookText, Plus, Receipt, Settings, UserCheck, Users, type LucideIcon } from "lucide-react";
 import { logout } from "@/app/(auth)/actions";
 import type { SessionUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils/cn";
@@ -15,6 +15,7 @@ const NOTICE: Item = { href: "/notices", label: "공지", icon: Megaphone };
 
 const MAIN: Item[] = [
   { href: "/", label: "대시보드", icon: LayoutGrid },
+  { href: "/minutes", label: "주간 회의록", icon: NotebookText },
   { href: "/questions", label: "프로젝트 질문", icon: MessageSquare },
   { href: "/inquiries", label: "문의 · 건의", icon: Lightbulb },
   { href: "/expenses", label: "비용 청구", icon: Receipt },
