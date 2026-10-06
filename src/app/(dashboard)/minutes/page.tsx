@@ -38,7 +38,7 @@ export default async function MinutesPage({ searchParams }: { searchParams: Prom
           ) : (
             <ul className="divide-y divide-slate-100 rounded-md border border-slate-200 bg-white">
               {minutes.map((m) => (
-                <li key={m.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3">
+                <li key={m.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-4">
                   <span className="w-24 text-sm tabular-nums text-slate-500">{formatDate(m.date)}</span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-slate-900">{m.title}</p>
