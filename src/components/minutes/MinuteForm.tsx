@@ -5,7 +5,7 @@ import { useActionState, useState } from "react";
 import { createMinute, deleteMinute } from "@/app/(dashboard)/minutes/actions";
 import type { FormState } from "@/app/(dashboard)/projects/[id]/actions";
 import { Button } from "@/components/ui/Button";
-import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { useRetainOnError } from "@/components/ui/useRetainOnError";
@@ -62,10 +62,11 @@ export function DeleteMinuteButton({ id, title }: { id: string; title: string })
   const [error, setError] = useState<string | null>(null);
   return (
     <div>
-      <ConfirmButton
+      <ConfirmDialog
         label="삭제"
+        title="회의록을 삭제할까요?"
+        message={`"${title}" 회의록이 목록에서 삭제되며 되돌릴 수 없습니다. 링크된 원본 문서는 지워지지 않습니다.`}
         confirmLabel="삭제"
-        message={`"${title}" 회의록을 삭제할까요?`}
         size="sm"
         onConfirm={() => deleteMinute(id).then((r) => setError(r.error ?? null))}
       />
