@@ -93,7 +93,9 @@ export function ProfileForm({ values }: { values: ProfileValues }) {
     <form ref={formRef} action={guard(submit)} onInput={check} onChange={check} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id="level" label="지금 수준" error={e.level}>
-          <Select id="level" name="level" defaultValue={values.level ?? ""}>
+          {/* React 는 select 의 defaultValue 를 마운트 때만 반영해서, 저장 후 폼 reset 이 처음 값으로 되돌린다.
+              저장된 값이 바뀌면 key 로 다시 마운트해 새 값을 기본값으로 삼게 한다 */}
+          <Select key={values.level ?? ""} id="level" name="level" defaultValue={values.level ?? ""}>
             <option value="">선택 안 함</option>
             {LEVELS.map((l) => (
               <option key={l} value={l}>
@@ -103,7 +105,7 @@ export function ProfileForm({ values }: { values: ProfileValues }) {
           </Select>
         </Field>
         <Field id="preferredPosition" label="선호 포지션" error={e.preferredPosition}>
-          <Select id="preferredPosition" name="preferredPosition" defaultValue={values.preferredPosition ?? ""}>
+          <Select key={values.preferredPosition ?? ""} id="preferredPosition" name="preferredPosition" defaultValue={values.preferredPosition ?? ""}>
             <option value="">선택 안 함</option>
             {POSITIONS.map((p) => (
               <option key={p} value={p}>
